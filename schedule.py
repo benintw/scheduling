@@ -244,1368 +244,1379 @@ def get_day_of_week(excelpath:str) -> list:
 
 
 if __name__ == "__main__":
-    st.markdown("# Make your wish")
+    st.markdown("# Intelligentsia")
     st.write("-"*100)
 
-    st.markdown("### 1. 上傳檔案")
-    st.write("* 檔案格式需為: .xlsx, .xls, 或.docx 檔")
-    st.write("* 請把 word 檔案儲存為.docx")
-    uploaded_files = st.file_uploader('Upload the files',type=["xlsx","xls","docx"] ,accept_multiple_files=True)
-    st.write("-"*100)
+    password = st.sidebar.text_input("Enter Password", type='password')
 
-    taoyuan_teams_docx_list = []
-    management_teams_excel_list = []
-    other_teams_docx_list = []
+    if password == "worldpeace":
 
-    get_different_teams_to_list(uploaded_files)
+        st.markdown("### 1. Upload Files")
+        st.write("* Accepted file types: .xlsx, .xls, 或.docx 檔")
+        st.write("* Please save .doc file as .docx extension")
+        need_help = st.button("how to convert to .docx?")
 
-    mega_team = {
-        "management_teams":management_teams_excel_list,
-        "taoyuan_teams":taoyuan_teams_docx_list,
-        "other_teams":other_teams_docx_list
-    }
+        if need_help:
+            st.image("/Users/benchen/Desktop/港務_streamlit/that.gif")
 
-    if uploaded_files:
+        uploaded_files = st.file_uploader('Upload the files',type=["xlsx","xls","docx"] ,accept_multiple_files=True)
+        st.write("-"*100)
 
-        day_of_week = get_day_of_week(mega_team["management_teams"])
-        df_officer = getDataFromExcel(mega_team["management_teams"])
+        taoyuan_teams_docx_list = []
+        management_teams_excel_list = []
+        other_teams_docx_list = []
 
-        # st.write(mega_team["taoyuan_teams"])
-        TaoYuanCombined_df = pd.DataFrame()
-        for taoyuan_team in mega_team["taoyuan_teams"]:
+        get_different_teams_to_list(uploaded_files)
 
-            if "特殊勤務" in taoyuan_team.name:
+        mega_team = {
+            "management_teams":management_teams_excel_list,
+            "taoyuan_teams":taoyuan_teams_docx_list,
+            "other_teams":other_teams_docx_list
+        }
 
-                df_taoyuan = get_DataFrame_SpecialForce(taoyuan_team)
-                TaoYuanCombined_df = pd.concat([TaoYuanCombined_df,df_taoyuan], axis=1)
-            else:
-                df_taoyuan = get_DataFrame(taoyuan_team)
-                TaoYuanCombined_df = pd.concat([TaoYuanCombined_df,df_taoyuan], axis=1)
+        if uploaded_files:
 
-        TaoYuanCombined_df = TaoYuanCombined_df.replace("○","輪休").replace("","輪休")
-        TaoYuanCombined_df = time_formatting(TaoYuanCombined_df)
+            day_of_week = get_day_of_week(mega_team["management_teams"])
+            df_officer = getDataFromExcel(mega_team["management_teams"])
 
-        OtherCombined_df = pd.DataFrame()
-        for other_team in mega_team["other_teams"]:
-            if "高雄機場" in other_team.name:
-                df_other_team = get_DataFrame_KaoHsiungAirport(other_team)
-                OtherCombined_df = pd.concat([OtherCombined_df,df_other_team], axis=1)
-            else:
-                df_other_team = get_DataFrame(other_team)
-                OtherCombined_df = pd.concat([OtherCombined_df,df_other_team], axis=1)
+            # st.write(mega_team["taoyuan_teams"])
+            TaoYuanCombined_df = pd.DataFrame()
+            for taoyuan_team in mega_team["taoyuan_teams"]:
 
-        OtherCombined_df = OtherCombined_df.replace("○","輪休").replace("","輪休")
-        OtherCombined_df = time_formatting(OtherCombined_df)
+                if "特殊勤務" in taoyuan_team.name:
 
-        # st.write(TaoYuanCombined_df)
-        # st.write(OtherCombined_df)
-        # '''TaoYuanCombined_df'''
-        tao1_index = []
-        tao2_index = []
-        tao3_index = []
-        tao4_index = []
-        tao5_index = []
-        specialForce_index = []
-        for column_idx in range(len(TaoYuanCombined_df.columns.values)):
+                    df_taoyuan = get_DataFrame_SpecialForce(taoyuan_team)
+                    TaoYuanCombined_df = pd.concat([TaoYuanCombined_df,df_taoyuan], axis=1)
+                else:
+                    df_taoyuan = get_DataFrame(taoyuan_team)
+                    TaoYuanCombined_df = pd.concat([TaoYuanCombined_df,df_taoyuan], axis=1)
 
-            if "1" in TaoYuanCombined_df.columns.values[column_idx]:
-                tao1_index.append(column_idx)
-                tao1_df = TaoYuanCombined_df.iloc[:, tao1_index[0]:tao1_index[-1]+1]
+            TaoYuanCombined_df = TaoYuanCombined_df.replace("○","輪休").replace("","輪休")
+            TaoYuanCombined_df = time_formatting(TaoYuanCombined_df)
 
-            elif "2" in TaoYuanCombined_df.columns.values[column_idx]:
-                tao2_index.append(column_idx)
-                tao2_df = TaoYuanCombined_df.iloc[:, tao2_index[0]:tao2_index[-1]+1]
+            OtherCombined_df = pd.DataFrame()
+            for other_team in mega_team["other_teams"]:
+                if "高雄機場" in other_team.name:
+                    df_other_team = get_DataFrame_KaoHsiungAirport(other_team)
+                    OtherCombined_df = pd.concat([OtherCombined_df,df_other_team], axis=1)
+                else:
+                    df_other_team = get_DataFrame(other_team)
+                    OtherCombined_df = pd.concat([OtherCombined_df,df_other_team], axis=1)
 
-            elif "3" in TaoYuanCombined_df.columns.values[column_idx]:
-                tao3_index.append(column_idx)
-                tao3_df = TaoYuanCombined_df.iloc[:, tao3_index[0]:tao3_index[-1]+1]
+            OtherCombined_df = OtherCombined_df.replace("○","輪休").replace("","輪休")
+            OtherCombined_df = time_formatting(OtherCombined_df)
 
-            elif "4" in TaoYuanCombined_df.columns.values[column_idx]:
-                tao4_index.append(column_idx)
-                tao4_df = TaoYuanCombined_df.iloc[:, tao4_index[0]:tao4_index[-1]+1]
+            # st.write(TaoYuanCombined_df)
+            # st.write(OtherCombined_df)
+            # '''TaoYuanCombined_df'''
+            tao1_index = []
+            tao2_index = []
+            tao3_index = []
+            tao4_index = []
+            tao5_index = []
+            specialForce_index = []
+            for column_idx in range(len(TaoYuanCombined_df.columns.values)):
 
-            elif "5" in TaoYuanCombined_df.columns.values[column_idx]:
-                tao5_index.append(column_idx)
-                tao5_df = TaoYuanCombined_df.iloc[:, tao5_index[0]:tao5_index[-1]+1]
+                if "1" in TaoYuanCombined_df.columns.values[column_idx]:
+                    tao1_index.append(column_idx)
+                    tao1_df = TaoYuanCombined_df.iloc[:, tao1_index[0]:tao1_index[-1]+1]
 
-            elif "0" in TaoYuanCombined_df.columns.values[column_idx]:
-                specialForce_index.append(column_idx)
-                specialForce_df = TaoYuanCombined_df.iloc[:, specialForce_index[0]:specialForce_index[-1]+1]
+                elif "2" in TaoYuanCombined_df.columns.values[column_idx]:
+                    tao2_index.append(column_idx)
+                    tao2_df = TaoYuanCombined_df.iloc[:, tao2_index[0]:tao2_index[-1]+1]
 
+                elif "3" in TaoYuanCombined_df.columns.values[column_idx]:
+                    tao3_index.append(column_idx)
+                    tao3_df = TaoYuanCombined_df.iloc[:, tao3_index[0]:tao3_index[-1]+1]
 
+                elif "4" in TaoYuanCombined_df.columns.values[column_idx]:
+                    tao4_index.append(column_idx)
+                    tao4_df = TaoYuanCombined_df.iloc[:, tao4_index[0]:tao4_index[-1]+1]
 
-        # '''OtherCombined_df'''
-        keelung_index = []
-        songshang_index = []
-        taichung_index = []
-        kaohsiungAirport_index = []
-        kaohsiungPort_index = []
-        jingmen_index = []
+                elif "5" in TaoYuanCombined_df.columns.values[column_idx]:
+                    tao5_index.append(column_idx)
+                    tao5_df = TaoYuanCombined_df.iloc[:, tao5_index[0]:tao5_index[-1]+1]
 
-        for column_idx in range(len(OtherCombined_df.columns.values)):
-
-            if "基隆" in OtherCombined_df.columns.values[column_idx]:
-                keelung_index.append(column_idx)
-                keelung_df = OtherCombined_df.iloc[:, keelung_index[0]:keelung_index[-1]+1]
-
-            elif "松山" in OtherCombined_df.columns.values[column_idx]:
-                songshang_index.append(column_idx)
-                songshang_df = OtherCombined_df.iloc[:, songshang_index[0]:songshang_index[-1]+1]
-
-            elif "臺中" in OtherCombined_df.columns.values[column_idx]:
-                taichung_index.append(column_idx)
-                taichung_df = OtherCombined_df.iloc[:, taichung_index[0]:taichung_index[-1]+1]
-
-            elif "高雄機場" in OtherCombined_df.columns.values[column_idx]:
-                kaohsiungAirport_index.append(column_idx)
-                kaohsiungAirport_df = OtherCombined_df.iloc[:, kaohsiungAirport_index[0]:kaohsiungAirport_index[-1]+1]
-
-            elif "高雄港隊" in OtherCombined_df.columns.values[column_idx]:
-                kaohsiungPort_index.append(column_idx)
-                kaohsiungPort_df = OtherCombined_df.iloc[:, kaohsiungPort_index[0]:kaohsiungPort_index[-1]+1]
-
-            elif "金門" in OtherCombined_df.columns.values[column_idx]:
-                jingmen_index.append(column_idx)
-                jingmen_df = OtherCombined_df.iloc[:, jingmen_index[0]:jingmen_index[-1]+1]
-
-
-    st.markdown(f"#### 你上傳了 {len(uploaded_files)} 個檔案:")
-
-    if uploaded_files:
-        st.markdown("###### EXCEL:")
-        for uploaded_file in uploaded_files:
-            if uploaded_file.name.endswith(".xlsx") or uploaded_file.name.endswith(".xls"):
-
-                st.write(uploaded_file.name)
-        st.write(" ")
-        st.markdown("###### WORD:")
-        for uploaded_file in uploaded_files:
-            if uploaded_file.name.endswith(".docx"):
-
-                st.write(uploaded_file.name)
-
-        for uploaded_file in uploaded_files:
-            if uploaded_file.name.split(".")[-1] in ["xlsx"]:
-                if "年" in uploaded_file.name:
-                    YEAR = uploaded_file.name.split("年")[0]
-                    MONTH = uploaded_file.name.split("月")[0].split("年")[1]
+                elif "0" in TaoYuanCombined_df.columns.values[column_idx]:
+                    specialForce_index.append(column_idx)
+                    specialForce_df = TaoYuanCombined_df.iloc[:, specialForce_index[0]:specialForce_index[-1]+1]
 
 
 
-    if uploaded_files:
-        st.write("-"*80)
-        st.markdown("#### 2. 想要哪一日的幹部出勤表?")
-        DAY = st.selectbox(
-            '',
-            (range(1,len(day_of_week))))
+            # '''OtherCombined_df'''
+            keelung_index = []
+            songshang_index = []
+            taichung_index = []
+            kaohsiungAirport_index = []
+            kaohsiungPort_index = []
+            jingmen_index = []
+
+            for column_idx in range(len(OtherCombined_df.columns.values)):
+
+                if "基隆" in OtherCombined_df.columns.values[column_idx]:
+                    keelung_index.append(column_idx)
+                    keelung_df = OtherCombined_df.iloc[:, keelung_index[0]:keelung_index[-1]+1]
+
+                elif "松山" in OtherCombined_df.columns.values[column_idx]:
+                    songshang_index.append(column_idx)
+                    songshang_df = OtherCombined_df.iloc[:, songshang_index[0]:songshang_index[-1]+1]
+
+                elif "臺中" in OtherCombined_df.columns.values[column_idx]:
+                    taichung_index.append(column_idx)
+                    taichung_df = OtherCombined_df.iloc[:, taichung_index[0]:taichung_index[-1]+1]
+
+                elif "高雄機場" in OtherCombined_df.columns.values[column_idx]:
+                    kaohsiungAirport_index.append(column_idx)
+                    kaohsiungAirport_df = OtherCombined_df.iloc[:, kaohsiungAirport_index[0]:kaohsiungAirport_index[-1]+1]
+
+                elif "高雄港隊" in OtherCombined_df.columns.values[column_idx]:
+                    kaohsiungPort_index.append(column_idx)
+                    kaohsiungPort_df = OtherCombined_df.iloc[:, kaohsiungPort_index[0]:kaohsiungPort_index[-1]+1]
+
+                elif "金門" in OtherCombined_df.columns.values[column_idx]:
+                    jingmen_index.append(column_idx)
+                    jingmen_df = OtherCombined_df.iloc[:, jingmen_index[0]:jingmen_index[-1]+1]
 
 
-        excel_file_name = f'最終_幹部出勤表_{MONTH}月{DAY}日.xlsx'
+        st.markdown(f"#### {len(uploaded_files)} Files Uploaded:")
 
-        output = BytesIO()
-        with xlsxwriter.Workbook(output, {'in_memory': True}) as workbook:
+        if uploaded_files:
+            st.markdown("###### EXCEL:")
+            for uploaded_file in uploaded_files:
+                if uploaded_file.name.endswith(".xlsx") or uploaded_file.name.endswith(".xls"):
 
-            worksheet = workbook.add_worksheet("幹部出勤表")
+                    st.write(uploaded_file.name)
+            st.write(" ")
+            st.markdown("###### WORD:")
+            for uploaded_file in uploaded_files:
+                if uploaded_file.name.endswith(".docx"):
 
-            #'''CONSTANTS'''
-            FIRST_ROW = 1
-            FIRST_COL = 1
-            LAST_COLUMNS = 8 # FIRST_COL+7
-            LAST_ROWS = 37 # FIRST_ROW+36
+                    st.write(uploaded_file.name)
 
-            # By Cell
-            first_row =  2
-            first_col = "B"
-            last_row = 38
-            last_col = "I"
-
-            TOP_LEFT_CELL = "B2"
-            TOP_RIGHT_CELL = "I2"
-            BOTTOM_LEFT_CELL = "B38"
-            BOTTOM_RIGHT_CELL = "I38"
-
-            # Border constants
-            THICKEST = 5
-            THICK = 2
-            # Some useful row -> WHOLE ROW
-            TitleWholeRow = first_col+str(first_row)+":"+last_col+str(first_row) #"B2:I2"
-            CustomWholeTeamRow = "B3:I3"
-            TaoYuanWholeRow = first_col+str(first_row+5)+":"+last_col+str(first_row+5)
-            AirportPortWholeRow = first_col+str(first_row+22)+":"+last_col+str(first_row+22)
-            NoteWholeRow = first_col+str(first_row+36)+":"+last_col+str(first_row+36)
-
-            # Some useful row indices
-            title_row = first_row
-            custome_row = first_row + 1
-            taoyuan_row = first_row + 5
-            airportport_row = first_row+22
-            note_row = last_row
-
-            #'''=================================================='''
-            #'''Format Defining'''
-            # Font_color: black, font_size:14, bold:True
-            subHeader_bold = workbook.add_format({'bold':True, "font_size":14,
-                                                "align":"center","valign":"vcenter"})
-            # text_format, align:center
-            text_format_center_officers = workbook.add_format({"font_size":16, "align":"center",
-                                                    "valign":"vcenter"})
-            # Add an Excel date format.
-            date_format = workbook.add_format({'num_format':'mmmm d yyyy'})
-
-            # row headers
-            TitleRow_format = workbook.add_format({"bold":True, 'font_color':"white",'font_size':20,
-                                                "align":"center","valign":"vcenter",
-                                                "bg_color":"#1155CC","border":5})
-
-            CustomTeamRow_format = workbook.add_format({"bold":True, 'font_color':"white",'font_size':16,
-                                                "align":"center","valign":"vcenter",
-                                                "bg_color":"#CC0000","border":5})
-
-            TaoYuanRow_AirportPortRow_format = workbook.add_format({"bold":True, 'font_color':"white",'font_size':14,
-                                                "align":"center","valign":"vcenter",
-                                                "bg_color":"#CC0000","border":5})
-
-            last_row_format = workbook.add_format({
-                                                    "bold":True,"font_color":"#C00000","font_size":14,
-                                                    "border":THICKEST,"top":THICK
-                                                })
-
-            grey_bg_color = workbook.add_format({"bg_color":"#D9D9D9"})
-
-            # Border Thickness
-            thickest_border = workbook.add_format({"border":THICKEST})
-            thickest_TOP_border = workbook.add_format({"top":THICKEST})
-            thickest_BOT_border = workbook.add_format({"bottom":THICKEST})
-            thickest_LEFT_border = workbook.add_format({"left":THICKEST})
-            thickest_RIGHT_border = workbook.add_format({"right":THICKEST})
-
-            thick_border = workbook.add_format({"border":THICK})
-            thick_TOP_border = workbook.add_format({"top":THICK})
-            thick_BOT_border = workbook.add_format({"bottom":THICK})
-            thick_LEFT_border = workbook.add_format({"left":THICK})
-            thick_RIGHT_border = workbook.add_format({"right":THICK})
+            for uploaded_file in uploaded_files:
+                if uploaded_file.name.split(".")[-1] in ["xlsx"]:
+                    if "年" in uploaded_file.name:
+                        YEAR = uploaded_file.name.split("年")[0]
+                        MONTH = uploaded_file.name.split("月")[0].split("年")[1]
 
 
-            #'''=================================================='''
-            # Conditional Formatting
-            def conditional_formatting():
-                #'''Conditional formatting'''
-                worksheet.conditional_format('B4:I6',{'type':'no_blanks','format':thick_border}) # thick_border in-between
-                worksheet.conditional_format('B8:I23',{'type':'no_blanks','format':thick_border})
-                worksheet.conditional_format('B8:I23',{'type':'blanks','format':thick_border})
-                worksheet.conditional_format('B25:I37',{'type':'no_blanks','format':thick_border})
-                worksheet.conditional_format('B25:I37',{'type':'blanks','format':thick_border})
 
-                worksheet.conditional_format(FIRST_ROW,FIRST_COL-1,LAST_ROWS,FIRST_COL-1, {"type":"blanks","format":workbook.add_format({"right":THICKEST})})
-                worksheet.conditional_format(FIRST_ROW,LAST_COLUMNS+1,LAST_ROWS,LAST_COLUMNS+1, {"type":"blanks","format":workbook.add_format({"left":THICKEST})})
-                worksheet.conditional_format("I9:I37", {"type":"blanks","format":workbook.add_format({"left":THICK,"top":THICK,"bottom":THICK,"right":THICKEST})})
-
-                # Individual cell Border formatting
-                worksheet.conditional_format("B3:I3",{"type":"no_blanks","format":thickest_border})
-                worksheet.conditional_format("B7:I7",{"type":"no_blanks","format":thickest_border})
-                worksheet.conditional_format("B8:I8",{"type":"no_blanks","format":thickest_border})
-                worksheet.conditional_format("B24:I24",{"type":"no_blanks","format":thickest_border})
-                worksheet.conditional_format("B38:I38",{"type":"no_blanks","format":workbook.add_format({"top":THICK,"left":THICKEST,"right":THICKEST,"bottom":THICKEST})})
-
-                #'''Row background_color Preset'''
-                # worksheet.conditional_format('B11:I12',{'type':"text",'criteria':"not containing",
-                #                                         "value":"-","format":grey_bg_color,
-                #                                         "multi_range":"B11:I12 B15:I16 H19:I20 B25:I26 B30:I31 B34:I35"})
-                # worksheet.conditional_format('B11:I12',{'type':"text",'criteria':"not containing",
-                #                                     "value":"|","format":grey_bg_color,
-                #                                     "multi_range":"B11:I12 B15:I16 H19:I20 B25:I26 B30:I31 B34:I35"})
-                worksheet.conditional_format('B11:B12',{'type':"text",'criteria':"not containing",
-                                                    "value":"|","format":grey_bg_color,
-                                                    "multi_range":"B11:B12 D11:D12 F11:F12 H11:I12"})
-                worksheet.conditional_format('B15:B16',{'type':"text",'criteria':"not containing",
-                                                    "value":"|","format":grey_bg_color,
-                                                    "multi_range":"B15:B16 D15:D16 F15:F16 H15:I16"})
-                worksheet.conditional_format('H19:I20',{'type':"text",'criteria':"not containing",
-                                                    "value":"|","format":grey_bg_color})
-                worksheet.conditional_format('B25:B27',{'type':"text",'criteria':"not containing",
-                                                    "value":"|","format":grey_bg_color,
-                                                    "multi_range":"B25:B27 D25:D27 F25:F27 H25:I27"})
-                worksheet.conditional_format('B30:B31',{'type':"text",'criteria':"not containing",
-                                                    "value":"|","format":grey_bg_color,
-                                                    "multi_range":"B30:B31 D30:D31 F30:F31 H30:I31"})
-                worksheet.conditional_format('B34:B35',{'type':"text",'criteria':"not containing",
-                                                    "value":"|","format":grey_bg_color,
-                                                    "multi_range":"B34:B35 D34:D35 F34:F35 H34:I35"})
-
-            conditional_formatting()
-            #'''=================================================='''
-            #'''Cell widths'''
-            def cell_width_adjusting():
-                '''負責所有儲存格width adjusting'''
-
-                worksheet.set_column(FIRST_COL,FIRST_COL, 12.33)
-                worksheet.set_column(FIRST_COL+1,FIRST_COL+1, 4.83)
-                worksheet.set_column(FIRST_COL+2,FIRST_COL+2, 8)
-                worksheet.set_column(FIRST_COL+3,FIRST_COL+3, 4)
-                worksheet.set_column(FIRST_COL+4,FIRST_COL+4, 8)
-                worksheet.set_column(FIRST_COL+5,FIRST_COL+5, 9)
-                worksheet.set_column(FIRST_COL+6,FIRST_COL+6, 13.17)
-                worksheet.set_column(FIRST_COL+7,FIRST_COL+7, 12.17)
+        if uploaded_files:
+            st.write("-"*80)
+            st.markdown("### 2. Select Date")
+            DAY = st.selectbox(
+                '',
+                (range(1,len(day_of_week))))
 
 
-                #'''Cell heights'''
-                for i in range(0,note_row):
-                    worksheet.set_row(i,23)
-                    if i == 10:
+            excel_file_name = f'最終_幹部出勤表_{MONTH}月{DAY}日.xlsx'
+
+            output = BytesIO()
+            with xlsxwriter.Workbook(output, {'in_memory': True}) as workbook:
+
+                worksheet = workbook.add_worksheet("幹部出勤表")
+
+                #'''CONSTANTS'''
+                FIRST_ROW = 1
+                FIRST_COL = 1
+                LAST_COLUMNS = 8 # FIRST_COL+7
+                LAST_ROWS = 37 # FIRST_ROW+36
+
+                # By Cell
+                first_row =  2
+                first_col = "B"
+                last_row = 38
+                last_col = "I"
+
+                TOP_LEFT_CELL = "B2"
+                TOP_RIGHT_CELL = "I2"
+                BOTTOM_LEFT_CELL = "B38"
+                BOTTOM_RIGHT_CELL = "I38"
+
+                # Border constants
+                THICKEST = 5
+                THICK = 2
+                # Some useful row -> WHOLE ROW
+                TitleWholeRow = first_col+str(first_row)+":"+last_col+str(first_row) #"B2:I2"
+                CustomWholeTeamRow = "B3:I3"
+                TaoYuanWholeRow = first_col+str(first_row+5)+":"+last_col+str(first_row+5)
+                AirportPortWholeRow = first_col+str(first_row+22)+":"+last_col+str(first_row+22)
+                NoteWholeRow = first_col+str(first_row+36)+":"+last_col+str(first_row+36)
+
+                # Some useful row indices
+                title_row = first_row
+                custome_row = first_row + 1
+                taoyuan_row = first_row + 5
+                airportport_row = first_row+22
+                note_row = last_row
+
+                #'''=================================================='''
+                #'''Format Defining'''
+                # Font_color: black, font_size:14, bold:True
+                subHeader_bold = workbook.add_format({'bold':True, "font_size":14,
+                                                    "align":"center","valign":"vcenter"})
+                # text_format, align:center
+                text_format_center_officers = workbook.add_format({"font_size":16, "align":"center",
+                                                        "valign":"vcenter"})
+                # Add an Excel date format.
+                date_format = workbook.add_format({'num_format':'mmmm d yyyy'})
+
+                # row headers
+                TitleRow_format = workbook.add_format({"bold":True, 'font_color':"white",'font_size':20,
+                                                    "align":"center","valign":"vcenter",
+                                                    "bg_color":"#1155CC","border":5})
+
+                CustomTeamRow_format = workbook.add_format({"bold":True, 'font_color':"white",'font_size':16,
+                                                    "align":"center","valign":"vcenter",
+                                                    "bg_color":"#CC0000","border":5})
+
+                TaoYuanRow_AirportPortRow_format = workbook.add_format({"bold":True, 'font_color':"white",'font_size':14,
+                                                    "align":"center","valign":"vcenter",
+                                                    "bg_color":"#CC0000","border":5})
+
+                last_row_format = workbook.add_format({
+                                                        "bold":True,"font_color":"#C00000","font_size":14,
+                                                        "border":THICKEST,"top":THICK
+                                                    })
+
+                grey_bg_color = workbook.add_format({"bg_color":"#D9D9D9"})
+
+                # Border Thickness
+                thickest_border = workbook.add_format({"border":THICKEST})
+                thickest_TOP_border = workbook.add_format({"top":THICKEST})
+                thickest_BOT_border = workbook.add_format({"bottom":THICKEST})
+                thickest_LEFT_border = workbook.add_format({"left":THICKEST})
+                thickest_RIGHT_border = workbook.add_format({"right":THICKEST})
+
+                thick_border = workbook.add_format({"border":THICK})
+                thick_TOP_border = workbook.add_format({"top":THICK})
+                thick_BOT_border = workbook.add_format({"bottom":THICK})
+                thick_LEFT_border = workbook.add_format({"left":THICK})
+                thick_RIGHT_border = workbook.add_format({"right":THICK})
+
+
+                #'''=================================================='''
+                # Conditional Formatting
+                def conditional_formatting():
+                    #'''Conditional formatting'''
+                    worksheet.conditional_format('B4:I6',{'type':'no_blanks','format':thick_border}) # thick_border in-between
+                    worksheet.conditional_format('B8:I23',{'type':'no_blanks','format':thick_border})
+                    worksheet.conditional_format('B8:I23',{'type':'blanks','format':thick_border})
+                    worksheet.conditional_format('B25:I37',{'type':'no_blanks','format':thick_border})
+                    worksheet.conditional_format('B25:I37',{'type':'blanks','format':thick_border})
+
+                    worksheet.conditional_format(FIRST_ROW,FIRST_COL-1,LAST_ROWS,FIRST_COL-1, {"type":"blanks","format":workbook.add_format({"right":THICKEST})})
+                    worksheet.conditional_format(FIRST_ROW,LAST_COLUMNS+1,LAST_ROWS,LAST_COLUMNS+1, {"type":"blanks","format":workbook.add_format({"left":THICKEST})})
+                    worksheet.conditional_format("I9:I37", {"type":"blanks","format":workbook.add_format({"left":THICK,"top":THICK,"bottom":THICK,"right":THICKEST})})
+
+                    # Individual cell Border formatting
+                    worksheet.conditional_format("B3:I3",{"type":"no_blanks","format":thickest_border})
+                    worksheet.conditional_format("B7:I7",{"type":"no_blanks","format":thickest_border})
+                    worksheet.conditional_format("B8:I8",{"type":"no_blanks","format":thickest_border})
+                    worksheet.conditional_format("B24:I24",{"type":"no_blanks","format":thickest_border})
+                    worksheet.conditional_format("B38:I38",{"type":"no_blanks","format":workbook.add_format({"top":THICK,"left":THICKEST,"right":THICKEST,"bottom":THICKEST})})
+
+                    #'''Row background_color Preset'''
+                    # worksheet.conditional_format('B11:I12',{'type':"text",'criteria':"not containing",
+                    #                                         "value":"-","format":grey_bg_color,
+                    #                                         "multi_range":"B11:I12 B15:I16 H19:I20 B25:I26 B30:I31 B34:I35"})
+                    # worksheet.conditional_format('B11:I12',{'type':"text",'criteria':"not containing",
+                    #                                     "value":"|","format":grey_bg_color,
+                    #                                     "multi_range":"B11:I12 B15:I16 H19:I20 B25:I26 B30:I31 B34:I35"})
+                    worksheet.conditional_format('B11:B12',{'type':"text",'criteria':"not containing",
+                                                        "value":"|","format":grey_bg_color,
+                                                        "multi_range":"B11:B12 D11:D12 F11:F12 H11:I12"})
+                    worksheet.conditional_format('B15:B16',{'type':"text",'criteria':"not containing",
+                                                        "value":"|","format":grey_bg_color,
+                                                        "multi_range":"B15:B16 D15:D16 F15:F16 H15:I16"})
+                    worksheet.conditional_format('H19:I20',{'type':"text",'criteria':"not containing",
+                                                        "value":"|","format":grey_bg_color})
+                    worksheet.conditional_format('B25:B27',{'type':"text",'criteria':"not containing",
+                                                        "value":"|","format":grey_bg_color,
+                                                        "multi_range":"B25:B27 D25:D27 F25:F27 H25:I27"})
+                    worksheet.conditional_format('B30:B31',{'type':"text",'criteria':"not containing",
+                                                        "value":"|","format":grey_bg_color,
+                                                        "multi_range":"B30:B31 D30:D31 F30:F31 H30:I31"})
+                    worksheet.conditional_format('B34:B35',{'type':"text",'criteria':"not containing",
+                                                        "value":"|","format":grey_bg_color,
+                                                        "multi_range":"B34:B35 D34:D35 F34:F35 H34:I35"})
+
+                conditional_formatting()
+                #'''=================================================='''
+                #'''Cell widths'''
+                def cell_width_adjusting():
+                    '''負責所有儲存格width adjusting'''
+
+                    worksheet.set_column(FIRST_COL,FIRST_COL, 12.33)
+                    worksheet.set_column(FIRST_COL+1,FIRST_COL+1, 4.83)
+                    worksheet.set_column(FIRST_COL+2,FIRST_COL+2, 8)
+                    worksheet.set_column(FIRST_COL+3,FIRST_COL+3, 4)
+                    worksheet.set_column(FIRST_COL+4,FIRST_COL+4, 8)
+                    worksheet.set_column(FIRST_COL+5,FIRST_COL+5, 9)
+                    worksheet.set_column(FIRST_COL+6,FIRST_COL+6, 13.17)
+                    worksheet.set_column(FIRST_COL+7,FIRST_COL+7, 12.17)
+
+
+                    #'''Cell heights'''
+                    for i in range(0,note_row):
                         worksheet.set_row(i,23)
-                        worksheet.set_row(i+1,23)
-                    elif i == 14:
-                        worksheet.set_row(i,23, )
-                        worksheet.set_row(i+1,23, )
-                    elif i == 18:
-                        worksheet.set_row(i,23, )
-                        worksheet.set_row(i+1,23, )
-                    elif i == 24:
-                        worksheet.set_row(i,23, )
-                        worksheet.set_row(i+1,23, )                        
-                        worksheet.set_row(i+2,23, )
-                    elif i == 29:
-                        worksheet.set_row(i,23, )
-                        worksheet.set_row(i+1,23, )
-                    elif i == 33:
-                        worksheet.set_row(i,23, )
-                        worksheet.set_row(i+1,23, )      
+                        if i == 10:
+                            worksheet.set_row(i,23)
+                            worksheet.set_row(i+1,23)
+                        elif i == 14:
+                            worksheet.set_row(i,23, )
+                            worksheet.set_row(i+1,23, )
+                        elif i == 18:
+                            worksheet.set_row(i,23, )
+                            worksheet.set_row(i+1,23, )
+                        elif i == 24:
+                            worksheet.set_row(i,23, )
+                            worksheet.set_row(i+1,23, )                        
+                            worksheet.set_row(i+2,23, )
+                        elif i == 29:
+                            worksheet.set_row(i,23, )
+                            worksheet.set_row(i+1,23, )
+                        elif i == 33:
+                            worksheet.set_row(i,23, )
+                            worksheet.set_row(i+1,23, )      
 
-                worksheet.set_row(10+1,23)
-                worksheet.set_row(14+1,23, )
-                worksheet.set_row(18+1,23, )
-                worksheet.set_row(24+1,23, )
-                worksheet.set_row(24+2,23, )
-                worksheet.set_row(29+1,23, )
-                worksheet.set_row(33+1,23, )
+                    worksheet.set_row(10+1,23)
+                    worksheet.set_row(14+1,23, )
+                    worksheet.set_row(18+1,23, )
+                    worksheet.set_row(24+1,23, )
+                    worksheet.set_row(24+2,23, )
+                    worksheet.set_row(29+1,23, )
+                    worksheet.set_row(33+1,23, )
 
-                worksheet.set_row(title_row-1,31)
-                worksheet.set_row(custome_row-1,25)
-                worksheet.set_row(custome_row,25)
-                worksheet.set_row(custome_row+1,25)
-                worksheet.set_row(taoyuan_row-1,23)
-                worksheet.set_row(taoyuan_row,24)
-                worksheet.set_row(airportport_row-1,23)
-                worksheet.set_row(note_row-1,22)
+                    worksheet.set_row(title_row-1,31)
+                    worksheet.set_row(custome_row-1,25)
+                    worksheet.set_row(custome_row,25)
+                    worksheet.set_row(custome_row+1,25)
+                    worksheet.set_row(taoyuan_row-1,23)
+                    worksheet.set_row(taoyuan_row,24)
+                    worksheet.set_row(airportport_row-1,23)
+                    worksheet.set_row(note_row-1,22)
 
-            cell_width_adjusting()
-            #'''=================================================='''
-            def create_thick_cell_borders(border_thickness):
-                '''Create surroudning thick borders'''
-                for row_idx in range(FIRST_ROW, LAST_ROWS):
-                    for column_idx in range(FIRST_COL, LAST_COLUMNS+1):
-                        worksheet.write(row_idx, column_idx, " ", border_thickness)
+                cell_width_adjusting()
+                #'''=================================================='''
+                def create_thick_cell_borders(border_thickness):
+                    '''Create surroudning thick borders'''
+                    for row_idx in range(FIRST_ROW, LAST_ROWS):
+                        for column_idx in range(FIRST_COL, LAST_COLUMNS+1):
+                            worksheet.write(row_idx, column_idx, " ", border_thickness)
 
-            create_thick_cell_borders(thick_border)
-            #'''=================================================='''
-            #'''固定不變的cells'''
-            def table_construction():
-                #'''建立固定不變的cells'''
-                worksheet.merge_range(TitleWholeRow, f"中華民國 {YEAR} 年 {MONTH} 月 {DAY} 日 ( {day_of_week[DAY]} )", TitleRow_format)
-                worksheet.merge_range(CustomWholeTeamRow, "國境事務大隊協管室值勤表", CustomTeamRow_format)
-                #'''===================='''
-                worksheet.write(first_col+str(custome_row+1), '總值勤官', workbook.add_format({'bold':True, "font_size":14,
-                                                    "align":"center","valign":"vcenter","top":5,"left":5,"right":2,"bottom":2}))
-                worksheet.write(first_col+str(custome_row+2), '值勤官', workbook.add_format({'bold':True, "font_size":14,
-                                                    "align":"center","valign":"vcenter","top":2,"left":5,"right":2,"bottom":2}))
-                worksheet.write(first_col+str(custome_row+3), '值勤員', workbook.add_format({'bold':True, "font_size":14,
-                                                    "align":"center","valign":"vcenter","top":2,"left":5,"right":2,"bottom":5}))
-                worksheet.merge_range("C6:E6", "",workbook.add_format({'bold':False, "font_size":14,
-                                                    "align":"center","valign":"vcenter","top":2,"left":2,"right":2,"bottom":2})) #
-                worksheet.merge_range("F6:G6", "監控人員",workbook.add_format({'bold':True, "font_size":14,
-                                                    "align":"center","valign":"vcenter","top":2,"left":2,"right":2,"bottom":5})) #
-                worksheet.write(custome_row+2, LAST_COLUMNS-1, " ",workbook.add_format({'bold':False, "font_size":14,
-                                                    "align":"center","valign":"vcenter","top":2,"left":2,"right":2,"bottom":5})) 
-                worksheet.write(custome_row+2, LAST_COLUMNS, " ",workbook.add_format({'bold':False, "font_size":14,
-                                                    "align":"center","valign":"vcenter","top":2,"left":2,"right":5,"bottom":2}))
-                #'''===================='''
-                worksheet.merge_range(TaoYuanWholeRow, '桃園機場幹部出勤狀況表', TaoYuanRow_AirportPortRow_format) 
-                #'''===================='''
-                worksheet.write(first_col+str(taoyuan_row+1), "隊別 / 職稱", subHeader_bold)
-                worksheet.merge_range("C8:D8", "隊長", subHeader_bold) # merge
-                worksheet.merge_range("E8:F8", "副隊長", subHeader_bold) # merge
-                worksheet.merge_range("G8:H8", "分隊長", subHeader_bold) # merge
-                worksheet.write(taoyuan_row,FIRST_COL+7, "備註", subHeader_bold) 
+                create_thick_cell_borders(thick_border)
+                #'''=================================================='''
+                #'''固定不變的cells'''
+                def table_construction():
+                    #'''建立固定不變的cells'''
+                    worksheet.merge_range(TitleWholeRow, f"中華民國 {YEAR} 年 {MONTH} 月 {DAY} 日 ( {day_of_week[DAY]} )", TitleRow_format)
+                    worksheet.merge_range(CustomWholeTeamRow, "國境事務大隊協管室值勤表", CustomTeamRow_format)
+                    #'''===================='''
+                    worksheet.write(first_col+str(custome_row+1), '總值勤官', workbook.add_format({'bold':True, "font_size":14,
+                                                        "align":"center","valign":"vcenter","top":5,"left":5,"right":2,"bottom":2}))
+                    worksheet.write(first_col+str(custome_row+2), '值勤官', workbook.add_format({'bold':True, "font_size":14,
+                                                        "align":"center","valign":"vcenter","top":2,"left":5,"right":2,"bottom":2}))
+                    worksheet.write(first_col+str(custome_row+3), '值勤員', workbook.add_format({'bold':True, "font_size":14,
+                                                        "align":"center","valign":"vcenter","top":2,"left":5,"right":2,"bottom":5}))
+                    worksheet.merge_range("C6:E6", "",workbook.add_format({'bold':False, "font_size":14,
+                                                        "align":"center","valign":"vcenter","top":2,"left":2,"right":2,"bottom":2})) #
+                    worksheet.merge_range("F6:G6", "監控人員",workbook.add_format({'bold':True, "font_size":14,
+                                                        "align":"center","valign":"vcenter","top":2,"left":2,"right":2,"bottom":5})) #
+                    worksheet.write(custome_row+2, LAST_COLUMNS-1, " ",workbook.add_format({'bold':False, "font_size":14,
+                                                        "align":"center","valign":"vcenter","top":2,"left":2,"right":2,"bottom":5})) 
+                    worksheet.write(custome_row+2, LAST_COLUMNS, " ",workbook.add_format({'bold':False, "font_size":14,
+                                                        "align":"center","valign":"vcenter","top":2,"left":2,"right":5,"bottom":2}))
+                    #'''===================='''
+                    worksheet.merge_range(TaoYuanWholeRow, '桃園機場幹部出勤狀況表', TaoYuanRow_AirportPortRow_format) 
+                    #'''===================='''
+                    worksheet.write(first_col+str(taoyuan_row+1), "隊別 / 職稱", subHeader_bold)
+                    worksheet.merge_range("C8:D8", "隊長", subHeader_bold) # merge
+                    worksheet.merge_range("E8:F8", "副隊長", subHeader_bold) # merge
+                    worksheet.merge_range("G8:H8", "分隊長", subHeader_bold) # merge
+                    worksheet.write(taoyuan_row,FIRST_COL+7, "備註", subHeader_bold) 
 
-                taoyuan_airport_teams = [
-                    "桃機一隊", "桃機二隊","桃機四隊", "桃機五隊", "桃機三隊", "特殊勤務隊"
-                ]
+                    taoyuan_airport_teams = [
+                        "桃機一隊", "桃機二隊","桃機四隊", "桃機五隊", "桃機三隊", "特殊勤務隊"
+                    ]
 
-                for i in range(0,2*len(taoyuan_airport_teams),2):
-                    # i = 0,2,4,6,8,10
-                    j = int(i/2)
-                    # j = 0,1,2,3,4,5
-                    if taoyuan_airport_teams[j] not in ["桃機三隊", "特殊勤務隊"]:
-                        worksheet.merge_range(first_col+f"{i+9}"+":"+first_col+f"{i+10}",taoyuan_airport_teams[j],subHeader_bold)
-                    elif taoyuan_airport_teams[j] in ["桃機三隊"]:
-                        worksheet.merge_range(first_col+f"{i+9}"+":"+first_col+f"{i+12}",taoyuan_airport_teams[j],subHeader_bold)
-                    elif taoyuan_airport_teams[j] in ["特殊勤務隊"]:
-                        worksheet.merge_range(first_col+f"{i+11}"+":"+first_col+f"{i+13}",taoyuan_airport_teams[j],subHeader_bold)
+                    for i in range(0,2*len(taoyuan_airport_teams),2):
+                        # i = 0,2,4,6,8,10
+                        j = int(i/2)
+                        # j = 0,1,2,3,4,5
+                        if taoyuan_airport_teams[j] not in ["桃機三隊", "特殊勤務隊"]:
+                            worksheet.merge_range(first_col+f"{i+9}"+":"+first_col+f"{i+10}",taoyuan_airport_teams[j],subHeader_bold)
+                        elif taoyuan_airport_teams[j] in ["桃機三隊"]:
+                            worksheet.merge_range(first_col+f"{i+9}"+":"+first_col+f"{i+12}",taoyuan_airport_teams[j],subHeader_bold)
+                        elif taoyuan_airport_teams[j] in ["特殊勤務隊"]:
+                            worksheet.merge_range(first_col+f"{i+11}"+":"+first_col+f"{i+13}",taoyuan_airport_teams[j],subHeader_bold)
+                        else:
+                            raise ValueError("Something went wrong")
+
+
+                    #'''===================='''
+                    worksheet.merge_range(AirportPortWholeRow, "外機港隊幹部出勤狀況表", TaoYuanRow_AirportPortRow_format) # merge, fontsize, white font, red background, border
+                    #'''===================='''
+                    other_port_teams = [
+                        "基隆港隊", "松山機場隊","臺中港隊", "高雄機場隊", "高雄港隊", "金門國境隊"
+                    ]
+
+                    worksheet.merge_range(first_col+f'{airportport_row+1}'+":"+first_col+f"{airportport_row+3}",other_port_teams[0],subHeader_bold)
+                    worksheet.merge_range(first_col+f'{airportport_row+4}'+":"+first_col+f"{airportport_row+5}",other_port_teams[1],subHeader_bold)
+                    worksheet.merge_range(first_col+f'{airportport_row+6}'+":"+first_col+f"{airportport_row+7}",other_port_teams[2],subHeader_bold)
+                    worksheet.merge_range(first_col+f'{airportport_row+8}'+":"+first_col+f"{airportport_row+9}",other_port_teams[3],subHeader_bold)
+                    worksheet.merge_range(first_col+f'{airportport_row+10}'+":"+first_col+f"{airportport_row+11}",other_port_teams[4],subHeader_bold)
+                    worksheet.merge_range(first_col+f'{airportport_row+12}'+":"+first_col+f"{airportport_row+13}",other_port_teams[5],subHeader_bold)
+
+                    #'''備註 Merge'''
+                    worksheet.merge_range(last_col+"9:"+last_col+"10"," ")
+                    worksheet.merge_range(last_col+"11:"+last_col+"12"," ")
+                    worksheet.merge_range(last_col+"13:"+last_col+"14"," ")
+                    worksheet.merge_range(last_col+"15:"+last_col+"16"," ")
+                    worksheet.merge_range(last_col+"17:"+last_col+"18"," ")
+                    worksheet.merge_range(last_col+"19:"+last_col+"20"," ")
+                    worksheet.merge_range(last_col+"21:"+last_col+"23"," ")
+                    worksheet.merge_range(last_col+"25:"+last_col+"27"," ")
+                    worksheet.merge_range(last_col+"28:"+last_col+"29"," ")
+                    worksheet.merge_range(last_col+"30:"+last_col+"31"," ")
+                    worksheet.merge_range(last_col+"32:"+last_col+"33"," ")
+                    worksheet.merge_range(last_col+"34:"+last_col+"35"," ")
+                    worksheet.merge_range(last_col+"36:"+last_col+"37"," ")
+
+                    #'''===================='''
+                    worksheet.merge_range(NoteWholeRow, f"備註：{MONTH}/1日起各隊夜班時間調整，班別顯示於下班日。", last_row_format)
+                    #'''===================='''  
+
+                table_construction()
+
+                #'''======================================================'''
+                #'''*********************** DATA *************************'''
+
+
+                #'''Data'''
+                # 總值勤官, 值勤官
+                gen_officer = df_officer.iloc[DAY][0]
+                dep_officer = df_officer.iloc[DAY][1]
+
+                # 桃一隊 tao1_df
+                u = tao1_df.iloc
+                u_ = tao1_df.loc
+
+                cell_C9 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_D9 = " " if cell_C9 == " " else u[0,:][0][-3:]
+                cell_E9 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_F9 = " " if cell_E9 == " " else u[0,:][1][-3:]
+
+                mask = u[DAY,:] != "輪休"
+                leaders_col = u[DAY,2:][mask]
+                leaders = u[0,2:][mask]
+                new_time_list = []
+                for i in range(len(u[DAY,2:][mask])):
+                    if "21-" in u[DAY,2:][mask][i]: # 前日21-9
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "0830" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "09-18" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "09-21" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "1130-2130" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                cell_G9 =  leaders_col[new_time_list[0]] # time
+                cell_H9 = leaders[new_time_list[0]][-3:]
+                cell_G10 = leaders_col[new_time_list[1]]
+                cell_H10 = leaders[new_time_list[1]][-3:]
+
+
+                # 桃2隊 tao2_df
+                u = tao2_df.iloc
+                cell_C11 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_D11 = " " if cell_C11 == " " else u[0,:][0][-3:]
+                cell_E11 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_F11 = " " if cell_E11 == " " else u[0,:][1][-3:]
+
+                mask = u[DAY,:] != "輪休"
+                new_time_list = []
+                leaders_col = u[DAY,2:][mask]
+                leaders = u[0,2:][mask]
+                for i in range(len(u[DAY,2:][mask])):
+                    if "21-9" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "0830-1730" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "09-21" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "1130-2130" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+
+                cell_G11 = leaders_col[new_time_list[0]]#u_[DAY,leaders_col[0]] # time
+                cell_H11 = leaders[new_time_list[0]][-3:]
+                cell_G12 = leaders_col[new_time_list[1]] #u_[DAY,leaders_col[1]] # time
+                cell_H12 = leaders[new_time_list[1]][-3:]
+
+                # 桃4隊 tao4_df
+                u = tao4_df.iloc
+
+                cell_C13 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_D13 = " " if cell_C13 == " " else u[0,:][0][-3:]
+                cell_E13 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_F13 = " " if cell_E13 == " " else u[0,:][1][-3:]
+
+                mask = u[DAY,:] != "輪休"
+                new_time_list = []
+                for i in range(len(u[DAY,2:][mask])):
+                    if "21-9" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "0830-1730" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "09-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "1130-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+
+                leaders_col = u[DAY,2:][mask]
+                leaders = u[0,2:][mask]
+                cell_G13 = leaders_col[new_time_list[0]]
+                cell_H13 = leaders[new_time_list[0]][-3:]
+                cell_G14 = leaders_col[new_time_list[1]]
+                cell_H14 = leaders[new_time_list[1]][-3:]
+
+                # 桃5隊 tao5_df
+                u = tao5_df.iloc
+
+                cell_C15 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_D15 = " " if cell_C15 == " " else u[0,:][0][-3:]
+                cell_E15 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_F15 = " " if cell_E15 == " " else u[0,:][1][-3:]
+
+                mask = u[DAY,:] != "輪休"
+                new_time_list = []
+                for i in range(len(u[DAY,2:][mask])):
+                    if "21-9" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "08-18" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "0830-1730" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "09-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "1130-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+
+                leaders_col = u[DAY,2:][mask]
+                leaders = u[0,2:][mask]
+                cell_G15 = leaders_col[new_time_list[0]]
+                cell_H15 = leaders[new_time_list[0]][-3:]
+                cell_G16 = leaders_col[new_time_list[1]]
+                cell_H16 = leaders[new_time_list[1]][-3:]
+
+                # 桃3隊 tao3_df
+                u = tao3_df.iloc
+
+                cell_C17 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_D17 = " " if cell_C17 == " " else u[0,:][0][-3:]
+                cell_E17 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_F17 = " " if cell_E17 == " " else u[0,:][1][-3:]
+
+                mask = u[DAY,:] != "輪休"
+                new_time_list = []
+                for i in range(len(u[DAY,2:][mask])):
+                    if "08-16" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "11-21" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if u[DAY,2:][mask][i] == "21-09":
+                        new_time_list.append(i)
+
+                leaders_col = u[DAY,2:][mask]
+                leaders = u[0,2:][mask]
+                cell_G17 = leaders_col[new_time_list[0]]
+                cell_H17 = leaders[new_time_list[0]][-3:]
+                cell_G18 = leaders_col[new_time_list[1]]
+                cell_H18 = leaders[new_time_list[1]][-3:]
+
+                cell_G19 = leaders_col[new_time_list[2]]
+                cell_H19 = leaders[new_time_list[2]][-3:]
+                cell_G20 = leaders_col[new_time_list[3]]
+                cell_H20 =  leaders[new_time_list[3]][-3:]
+
+
+                # # 特殊勤務 specialForce_df
+                u = specialForce_df.iloc
+                cell_C21 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_D21 = " " if cell_C21 == " " else u[0,:][0][-3:]
+                cell_E21 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_F21 = " " if cell_E21 == " " else u[0,:][1][-2:]
+
+                mask = u[DAY,:] != "輪休"
+                new_time_list = []
+                leaders_col = u[DAY,2:][mask]
+                leaders = u[0,2:][mask]
+
+                # repeat 22-10
+                for i in range(len(u[DAY,2:][mask])):
+                    if "22-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "10-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                if "22-10" in leaders_col.values.tolist():
+                    new_time_list.append(new_time_list[0])
+
+                cell_G21 = leaders_col[new_time_list[0]]
+                cell_H21 = leaders[new_time_list[0]][1:]
+                cell_G22 = leaders_col[new_time_list[1]]
+                cell_H22 = leaders[new_time_list[1]][1:]
+
+
+                # '''外機港隊'''
+                # keelunng_df
+                u = keelung_df.iloc
+                cell_C25 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_D25 = " " if cell_C25 == " " else keelung_df.columns.tolist()[0][-3:]
+                cell_E25 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_F25 = " " if cell_E25 == " " else keelung_df.columns.tolist()[1][-3:]
+
+                mask = u[DAY,:] != "輪休"
+                new_time_list = []
+                leaders_col = u[DAY,2:][mask]
+                leaders = u[0,2:][mask].index.tolist()
+                # repeat 22-10
+                for i in range(len(u[DAY,2:][mask])):
+                    if "22-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "10-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "12-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                if "22-10" in leaders_col.values.tolist():
+                    new_time_list.append(new_time_list[0])
+
+                cell_G25 = leaders_col[new_time_list[0]]
+                cell_H25 = leaders[new_time_list[0]][-3:]
+                cell_G26 = leaders_col[new_time_list[1]]
+                cell_H26 = leaders[new_time_list[1]][-3:]
+
+
+                # # songshang_df
+                u = songshang_df.iloc
+
+                cell_C28 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_D28 = " " if cell_C28 == " " else " "
+                cell_E28 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_F28 = " " if cell_E28 == " " else u[0,:][1][-3:]
+
+                mask = u[DAY,:] != "輪休"
+                new_time_list = []
+                for i in range(len(u[DAY,2:][mask])):
+                    if "07" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):     
+                    if "11-23" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+
+                leaders_col = u[DAY,2:][mask]
+                leaders = u[0,2:][mask]
+
+                cell_G28 = leaders_col[new_time_list[0]]
+                cell_H28 = leaders[new_time_list[0]][-3:]
+                cell_G29 = leaders_col[new_time_list[1]]
+                cell_H29 = leaders[new_time_list[1]][-3:]
+
+
+                # # taichung_df
+                u = taichung_df.iloc
+                cell_C30 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_D30 = " " if cell_C30 == " " else u[0,:][0][-3:]
+                cell_E30 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_F30 = " " if cell_E30 == " " else u[0,:][1][-3:]
+
+                mask = u[DAY,:] != "輪休"
+                new_time_list = []
+                leaders_col = u[DAY,2:][mask]
+                leaders = u[0,2:][mask]
+                for i in range(len(u[DAY,2:][mask])):
+                    if "0745" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):     
+                    if "09-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+
+                cell_G30 =  leaders_col[new_time_list[0]]
+                cell_H30 = leaders[new_time_list[0]][-3:]
+                cell_G31 = leaders_col[new_time_list[1]]
+                cell_H31 = leaders[new_time_list[1]][-3:]
+
+                # # kaohsiungAirport_df
+                u = kaohsiungAirport_df.iloc
+                cell_C32 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_D32 = " " if cell_C32 == " " else u[0,:][0][-3:]
+                cell_E32 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_F32 = " " if cell_E32 == " " else u[0,:][1][-3:]
+
+                mask = u[DAY,:] != "輪休"
+                new_time_list = []
+                leaders_col = u[DAY,2:][mask]
+                leaders = u[0,2:][mask]
+                for i in range(len(u[DAY,2:][mask])):
+                    if "05" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "14-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+
+                cell_G32 = leaders_col[new_time_list[0]]
+                cell_H32 = leaders[new_time_list[0]][-3:]
+                cell_G33 = leaders_col[new_time_list[1]]
+                cell_H33 = leaders[new_time_list[1]][-3:]
+
+                # # kaohsiungPort_df
+                u = kaohsiungPort_df.iloc
+                cell_C34 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_D34 = " " if cell_C34 == " " else u[0,:][0][-3:]
+                cell_E34 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_F34 = " " if cell_E34 == " " else u[0,:][1][-3:]
+
+                mask = u[DAY,:] != "輪休"
+                new_time_list = []
+                leaders_col = u[DAY,2:][mask]
+                leaders = u[0,2:][mask]
+
+                for i in range(len(u[DAY,2:][mask])):     
+                    if "20-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "-16" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):     
+                    if "-20" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+
+                cell_G34 = leaders_col[new_time_list[0]]
+                cell_H34 = leaders[new_time_list[0]][-3:]
+                try:
+                    cell_G35 = leaders_col[new_time_list[1]]
+                    cell_H35 = leaders[new_time_list[1]][-3:]
+                except:
+                    cell_G35 = None
+                    cell_H35 = None
+
+
+                # # jingmen_df
+                u = jingmen_df.iloc
+                cell_C36 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_D36 = " " if cell_C36 == " " else u[0,:][0][-3:]
+                cell_E36 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_F36 = " " if cell_E36 == " " else u[0,:][1][-3:]
+
+                mask = u[DAY,:] != "輪休"
+                new_time_list = []
+                leaders_col = u[DAY,2:][mask]
+                leaders = u[0,2:][mask]
+
+                for i in range(len(u[DAY,2:][mask])):     
+                    if "8-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
+                    if "9-" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+
+                cell_G36 = leaders_col[new_time_list[0]]
+                cell_H36 = leaders[new_time_list[0]][-3:]
+                try:
+                    cell_G37 = leaders_col[new_time_list[1]]
+                    cell_H37 = leaders[new_time_list[1]][-3:]
+                except:
+                    cell_G37 = None
+                    cell_H37 = None
+
+
+                #'''********************* WRITE TO EXCEL *************************'''
+                #'''Time Data Formatting + Conditional Formatting'''
+                # Captains format
+                captains_time_format_morning = workbook.add_format({"bold":True,"text_wrap":True,
+                                                            "align":"center","valign":"vcenter",
+                                                            "bg_color":"#F1C232","font_size":10,
+                                                            "border":THICK})
+
+                captains_time_format_not_morning = workbook.add_format({"bold":True,"text_wrap":True,
+                                                            "align":"center","valign":"vcenter",
+                                                            "bg_color":"#CFAFE7","font_size":10,
+                                                            "border":THICK})
+                                                            
+                text_format_10 = workbook.add_format({"font_size":10,"align":"center",
+                                                    "valign":"vcenter"})
+
+                text_format = workbook.add_format({"font_size":14,"align":"center",
+                                                    "valign":"vcenter"})
+
+
+                # Leaders format
+                leaders_time_format_morning = workbook.add_format({"bold":True,"text_wrap":False,
+                                                            "align":"center","valign":"vcenter",
+                                                            "bg_color":"#F1C232","font_size":10,
+                                                            "border":THICK})
+
+                leaders_time_format_not_morning = workbook.add_format({"bold":True,"text_wrap":False,
+                                                            "align":"center","valign":"vcenter",
+                                                            "bg_color":"#CFAFE7","font_size":10,
+                                                            "border":THICK})
+
+                # to be deleted
+                lightPurple_time_format = workbook.add_format({"bold":True,"font_size":10,
+                                                        "border":THICK,"bg_color":"blue",
+                                                        "align":"center","valign":"vcenter"})
+
+                DarkPurple_time_format = workbook.add_format({"bold":True,"font_size":10,
+                                                        "border":THICK,"bg_color":"blue",
+                                                        "align":"center","valign":"vcenter"})
+
+                Yellow_time_format = workbook.add_format({"bold":True,"font_size":10,
+                                                        "border":THICK,"bg_color":"blue",
+                                                        "align":"center","valign":"vcenter"})
+
+                #'''===================== 協管室值勤 ===================='''
+                worksheet.merge_range("C4:I4", gen_officer,workbook.add_format({"font_size":16, "align":"center",
+                                                        "valign":"vcenter","left":2,"right":5,"bottom":2,"top":5}))
+                worksheet.merge_range("C5:I5", dep_officer,text_format_center_officers)
+
+
+                #'''===================== 桃園機場幹部 ===================='''
+                TIME_THRESHOLD = 11
+
+                # 桃一隊 tao1_df
+                try:
+                    if int(cell_C9[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("C9:C10",cell_C9, captains_time_format_morning) # time 
                     else:
-                        raise ValueError("Something went wrong")
+                        worksheet.merge_range("C9:C10",cell_C9, captains_time_format_not_morning)
 
+                except:
+                    worksheet.merge_range("C9:C10",cell_C9, text_format_10) # time 
 
-                #'''===================='''
-                worksheet.merge_range(AirportPortWholeRow, "外機港隊幹部出勤狀況表", TaoYuanRow_AirportPortRow_format) # merge, fontsize, white font, red background, border
-                #'''===================='''
-                other_port_teams = [
-                    "基隆港隊", "松山機場隊","臺中港隊", "高雄機場隊", "高雄港隊", "金門國境隊"
-                ]
-
-                worksheet.merge_range(first_col+f'{airportport_row+1}'+":"+first_col+f"{airportport_row+3}",other_port_teams[0],subHeader_bold)
-                worksheet.merge_range(first_col+f'{airportport_row+4}'+":"+first_col+f"{airportport_row+5}",other_port_teams[1],subHeader_bold)
-                worksheet.merge_range(first_col+f'{airportport_row+6}'+":"+first_col+f"{airportport_row+7}",other_port_teams[2],subHeader_bold)
-                worksheet.merge_range(first_col+f'{airportport_row+8}'+":"+first_col+f"{airportport_row+9}",other_port_teams[3],subHeader_bold)
-                worksheet.merge_range(first_col+f'{airportport_row+10}'+":"+first_col+f"{airportport_row+11}",other_port_teams[4],subHeader_bold)
-                worksheet.merge_range(first_col+f'{airportport_row+12}'+":"+first_col+f"{airportport_row+13}",other_port_teams[5],subHeader_bold)
-
-                #'''備註 Merge'''
-                worksheet.merge_range(last_col+"9:"+last_col+"10"," ")
-                worksheet.merge_range(last_col+"11:"+last_col+"12"," ")
-                worksheet.merge_range(last_col+"13:"+last_col+"14"," ")
-                worksheet.merge_range(last_col+"15:"+last_col+"16"," ")
-                worksheet.merge_range(last_col+"17:"+last_col+"18"," ")
-                worksheet.merge_range(last_col+"19:"+last_col+"20"," ")
-                worksheet.merge_range(last_col+"21:"+last_col+"23"," ")
-                worksheet.merge_range(last_col+"25:"+last_col+"27"," ")
-                worksheet.merge_range(last_col+"28:"+last_col+"29"," ")
-                worksheet.merge_range(last_col+"30:"+last_col+"31"," ")
-                worksheet.merge_range(last_col+"32:"+last_col+"33"," ")
-                worksheet.merge_range(last_col+"34:"+last_col+"35"," ")
-                worksheet.merge_range(last_col+"36:"+last_col+"37"," ")
-
-                #'''===================='''
-                worksheet.merge_range(NoteWholeRow, f"備註：{MONTH}/1日起各隊夜班時間調整，班別顯示於下班日。", last_row_format)
-                #'''===================='''  
-
-            table_construction()
-
-            #'''======================================================'''
-            #'''*********************** DATA *************************'''
-
-
-            #'''Data'''
-            # 總值勤官, 值勤官
-            gen_officer = df_officer.iloc[DAY][0]
-            dep_officer = df_officer.iloc[DAY][1]
-
-            # 桃一隊 tao1_df
-            u = tao1_df.iloc
-            u_ = tao1_df.loc
-
-            cell_C9 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
-            cell_D9 = " " if cell_C9 == " " else u[0,:][0][-3:]
-            cell_E9 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
-            cell_F9 = " " if cell_E9 == " " else u[0,:][1][-3:]
-
-            mask = u[DAY,:] != "輪休"
-            leaders_col = u[DAY,2:][mask]
-            leaders = u[0,2:][mask]
-            new_time_list = []
-            for i in range(len(u[DAY,2:][mask])):
-                if "21-" in u[DAY,2:][mask][i]: # 前日21-9
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "0830" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "09-18" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "09-21" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "1130-2130" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            cell_G9 =  leaders_col[new_time_list[0]] # time
-            cell_H9 = leaders[new_time_list[0]][-3:]
-            cell_G10 = leaders_col[new_time_list[1]]
-            cell_H10 = leaders[new_time_list[1]][-3:]
-
-
-            # 桃2隊 tao2_df
-            u = tao2_df.iloc
-            cell_C11 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
-            cell_D11 = " " if cell_C11 == " " else u[0,:][0][-3:]
-            cell_E11 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
-            cell_F11 = " " if cell_E11 == " " else u[0,:][1][-3:]
-
-            mask = u[DAY,:] != "輪休"
-            new_time_list = []
-            leaders_col = u[DAY,2:][mask]
-            leaders = u[0,2:][mask]
-            for i in range(len(u[DAY,2:][mask])):
-                if "21-9" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "0830-1730" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "09-21" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "1130-2130" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-
-            cell_G11 = leaders_col[new_time_list[0]]#u_[DAY,leaders_col[0]] # time
-            cell_H11 = leaders[new_time_list[0]][-3:]
-            cell_G12 = leaders_col[new_time_list[1]] #u_[DAY,leaders_col[1]] # time
-            cell_H12 = leaders[new_time_list[1]][-3:]
-
-            # 桃4隊 tao4_df
-            u = tao4_df.iloc
-
-            cell_C13 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
-            cell_D13 = " " if cell_C13 == " " else u[0,:][0][-3:]
-            cell_E13 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
-            cell_F13 = " " if cell_E13 == " " else u[0,:][1][-3:]
-
-            mask = u[DAY,:] != "輪休"
-            new_time_list = []
-            for i in range(len(u[DAY,2:][mask])):
-                if "21-9" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "0830-1730" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "09-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "1130-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-
-            leaders_col = u[DAY,2:][mask]
-            leaders = u[0,2:][mask]
-            cell_G13 = leaders_col[new_time_list[0]]
-            cell_H13 = leaders[new_time_list[0]][-3:]
-            cell_G14 = leaders_col[new_time_list[1]]
-            cell_H14 = leaders[new_time_list[1]][-3:]
-
-            # 桃5隊 tao5_df
-            u = tao5_df.iloc
-
-            cell_C15 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
-            cell_D15 = " " if cell_C15 == " " else u[0,:][0][-3:]
-            cell_E15 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
-            cell_F15 = " " if cell_E15 == " " else u[0,:][1][-3:]
-
-            mask = u[DAY,:] != "輪休"
-            new_time_list = []
-            for i in range(len(u[DAY,2:][mask])):
-                if "21-9" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "08-18" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "0830-1730" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "09-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "1130-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-
-            leaders_col = u[DAY,2:][mask]
-            leaders = u[0,2:][mask]
-            cell_G15 = leaders_col[new_time_list[0]]
-            cell_H15 = leaders[new_time_list[0]][-3:]
-            cell_G16 = leaders_col[new_time_list[1]]
-            cell_H16 = leaders[new_time_list[1]][-3:]
-
-            # 桃3隊 tao3_df
-            u = tao3_df.iloc
-
-            cell_C17 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
-            cell_D17 = " " if cell_C17 == " " else u[0,:][0][-3:]
-            cell_E17 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
-            cell_F17 = " " if cell_E17 == " " else u[0,:][1][-3:]
-
-            mask = u[DAY,:] != "輪休"
-            new_time_list = []
-            for i in range(len(u[DAY,2:][mask])):
-                if "08-16" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "11-21" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if u[DAY,2:][mask][i] == "21-09":
-                    new_time_list.append(i)
-
-            leaders_col = u[DAY,2:][mask]
-            leaders = u[0,2:][mask]
-            cell_G17 = leaders_col[new_time_list[0]]
-            cell_H17 = leaders[new_time_list[0]][-3:]
-            cell_G18 = leaders_col[new_time_list[1]]
-            cell_H18 = leaders[new_time_list[1]][-3:]
-
-            cell_G19 = leaders_col[new_time_list[2]]
-            cell_H19 = leaders[new_time_list[2]][-3:]
-            cell_G20 = leaders_col[new_time_list[3]]
-            cell_H20 =  leaders[new_time_list[3]][-3:]
-
-
-            # # 特殊勤務 specialForce_df
-            u = specialForce_df.iloc
-            cell_C21 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
-            cell_D21 = " " if cell_C21 == " " else u[0,:][0][-3:]
-            cell_E21 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
-            cell_F21 = " " if cell_E21 == " " else u[0,:][1][-2:]
-
-            mask = u[DAY,:] != "輪休"
-            new_time_list = []
-            leaders_col = u[DAY,2:][mask]
-            leaders = u[0,2:][mask]
-
-            # repeat 22-10
-            for i in range(len(u[DAY,2:][mask])):
-                if "22-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "10-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            if "22-10" in leaders_col.values.tolist():
-                new_time_list.append(new_time_list[0])
-
-            cell_G21 = leaders_col[new_time_list[0]]
-            cell_H21 = leaders[new_time_list[0]][1:]
-            cell_G22 = leaders_col[new_time_list[1]]
-            cell_H22 = leaders[new_time_list[1]][1:]
-
-
-            # '''外機港隊'''
-            # keelunng_df
-            u = keelung_df.iloc
-            cell_C25 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
-            cell_D25 = " " if cell_C25 == " " else keelung_df.columns.tolist()[0][-3:]
-            cell_E25 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
-            cell_F25 = " " if cell_E25 == " " else keelung_df.columns.tolist()[1][-3:]
-
-            mask = u[DAY,:] != "輪休"
-            new_time_list = []
-            leaders_col = u[DAY,2:][mask]
-            leaders = u[0,2:][mask].index.tolist()
-            # repeat 22-10
-            for i in range(len(u[DAY,2:][mask])):
-                if "22-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "10-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "12-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            if "22-10" in leaders_col.values.tolist():
-                new_time_list.append(new_time_list[0])
-
-            cell_G25 = leaders_col[new_time_list[0]]
-            cell_H25 = leaders[new_time_list[0]][-3:]
-            cell_G26 = leaders_col[new_time_list[1]]
-            cell_H26 = leaders[new_time_list[1]][-3:]
-
-
-            # # songshang_df
-            u = songshang_df.iloc
-
-            cell_C28 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
-            cell_D28 = " " if cell_C28 == " " else " "
-            cell_E28 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
-            cell_F28 = " " if cell_E28 == " " else u[0,:][1][-3:]
-
-            mask = u[DAY,:] != "輪休"
-            new_time_list = []
-            for i in range(len(u[DAY,2:][mask])):
-                if "07" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):     
-                if "11-23" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-
-            leaders_col = u[DAY,2:][mask]
-            leaders = u[0,2:][mask]
-
-            cell_G28 = leaders_col[new_time_list[0]]
-            cell_H28 = leaders[new_time_list[0]][-3:]
-            cell_G29 = leaders_col[new_time_list[1]]
-            cell_H29 = leaders[new_time_list[1]][-3:]
-
-
-            # # taichung_df
-            u = taichung_df.iloc
-            cell_C30 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
-            cell_D30 = " " if cell_C30 == " " else u[0,:][0][-3:]
-            cell_E30 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
-            cell_F30 = " " if cell_E30 == " " else u[0,:][1][-3:]
-
-            mask = u[DAY,:] != "輪休"
-            new_time_list = []
-            leaders_col = u[DAY,2:][mask]
-            leaders = u[0,2:][mask]
-            for i in range(len(u[DAY,2:][mask])):
-                if "0745" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):     
-                if "09-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-
-            cell_G30 =  leaders_col[new_time_list[0]]
-            cell_H30 = leaders[new_time_list[0]][-3:]
-            cell_G31 = leaders_col[new_time_list[1]]
-            cell_H31 = leaders[new_time_list[1]][-3:]
-
-            # # kaohsiungAirport_df
-            u = kaohsiungAirport_df.iloc
-            cell_C32 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
-            cell_D32 = " " if cell_C32 == " " else u[0,:][0][-3:]
-            cell_E32 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
-            cell_F32 = " " if cell_E32 == " " else u[0,:][1][-3:]
-
-            mask = u[DAY,:] != "輪休"
-            new_time_list = []
-            leaders_col = u[DAY,2:][mask]
-            leaders = u[0,2:][mask]
-            for i in range(len(u[DAY,2:][mask])):
-                if "05" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "14-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-
-            cell_G32 = leaders_col[new_time_list[0]]
-            cell_H32 = leaders[new_time_list[0]][-3:]
-            cell_G33 = leaders_col[new_time_list[1]]
-            cell_H33 = leaders[new_time_list[1]][-3:]
-
-            # # kaohsiungPort_df
-            u = kaohsiungPort_df.iloc
-            cell_C34 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
-            cell_D34 = " " if cell_C34 == " " else u[0,:][0][-3:]
-            cell_E34 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
-            cell_F34 = " " if cell_E34 == " " else u[0,:][1][-3:]
-
-            mask = u[DAY,:] != "輪休"
-            new_time_list = []
-            leaders_col = u[DAY,2:][mask]
-            leaders = u[0,2:][mask]
-
-            for i in range(len(u[DAY,2:][mask])):     
-                if "20-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "-16" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):     
-                if "-20" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-
-            cell_G34 = leaders_col[new_time_list[0]]
-            cell_H34 = leaders[new_time_list[0]][-3:]
-            try:
-                cell_G35 = leaders_col[new_time_list[1]]
-                cell_H35 = leaders[new_time_list[1]][-3:]
-            except:
-                cell_G35 = None
-                cell_H35 = None
-
-
-            # # jingmen_df
-            u = jingmen_df.iloc
-            cell_C36 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
-            cell_D36 = " " if cell_C36 == " " else u[0,:][0][-3:]
-            cell_E36 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
-            cell_F36 = " " if cell_E36 == " " else u[0,:][1][-3:]
-
-            mask = u[DAY,:] != "輪休"
-            new_time_list = []
-            leaders_col = u[DAY,2:][mask]
-            leaders = u[0,2:][mask]
-
-            for i in range(len(u[DAY,2:][mask])):     
-                if "8-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-            for i in range(len(u[DAY,2:][mask])):
-                if "9-" in u[DAY,2:][mask][i]:
-                    new_time_list.append(i)
-
-            cell_G36 = leaders_col[new_time_list[0]]
-            cell_H36 = leaders[new_time_list[0]][-3:]
-            try:
-                cell_G37 = leaders_col[new_time_list[1]]
-                cell_H37 = leaders[new_time_list[1]][-3:]
-            except:
-                cell_G37 = None
-                cell_H37 = None
-
-
-            #'''********************* WRITE TO EXCEL *************************'''
-            #'''Time Data Formatting + Conditional Formatting'''
-            # Captains format
-            captains_time_format_morning = workbook.add_format({"bold":True,"text_wrap":True,
-                                                        "align":"center","valign":"vcenter",
-                                                        "bg_color":"#F1C232","font_size":10,
-                                                        "border":THICK})
-
-            captains_time_format_not_morning = workbook.add_format({"bold":True,"text_wrap":True,
-                                                        "align":"center","valign":"vcenter",
-                                                        "bg_color":"#CFAFE7","font_size":10,
-                                                        "border":THICK})
-                                                        
-            text_format_10 = workbook.add_format({"font_size":10,"align":"center",
-                                                "valign":"vcenter"})
-
-            text_format = workbook.add_format({"font_size":14,"align":"center",
-                                                "valign":"vcenter"})
-
-
-            # Leaders format
-            leaders_time_format_morning = workbook.add_format({"bold":True,"text_wrap":False,
-                                                        "align":"center","valign":"vcenter",
-                                                        "bg_color":"#F1C232","font_size":10,
-                                                        "border":THICK})
-
-            leaders_time_format_not_morning = workbook.add_format({"bold":True,"text_wrap":False,
-                                                        "align":"center","valign":"vcenter",
-                                                        "bg_color":"#CFAFE7","font_size":10,
-                                                        "border":THICK})
-
-            # to be deleted
-            lightPurple_time_format = workbook.add_format({"bold":True,"font_size":10,
-                                                    "border":THICK,"bg_color":"blue",
-                                                    "align":"center","valign":"vcenter"})
-
-            DarkPurple_time_format = workbook.add_format({"bold":True,"font_size":10,
-                                                    "border":THICK,"bg_color":"blue",
-                                                    "align":"center","valign":"vcenter"})
-
-            Yellow_time_format = workbook.add_format({"bold":True,"font_size":10,
-                                                    "border":THICK,"bg_color":"blue",
-                                                    "align":"center","valign":"vcenter"})
-
-            #'''===================== 協管室值勤 ===================='''
-            worksheet.merge_range("C4:I4", gen_officer,workbook.add_format({"font_size":16, "align":"center",
-                                                    "valign":"vcenter","left":2,"right":5,"bottom":2,"top":5}))
-            worksheet.merge_range("C5:I5", dep_officer,text_format_center_officers)
-
-
-            #'''===================== 桃園機場幹部 ===================='''
-            TIME_THRESHOLD = 11
-
-            # 桃一隊 tao1_df
-            try:
-                if int(cell_C9[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("C9:C10",cell_C9, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("C9:C10",cell_C9, captains_time_format_not_morning)
-
-            except:
-                worksheet.merge_range("C9:C10",cell_C9, text_format_10) # time 
-
-            try:
-                if int(cell_E9[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("E9:E10",cell_E9, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("E9:E10",cell_E9, captains_time_format_not_morning)
-            except:
-                worksheet.merge_range("E9:E10",cell_E9, text_format_10) # time
-
-            # 桃一隊 leaders
-            if int(cell_G9[:2]) <= TIME_THRESHOLD:
-                worksheet.write("G9", cell_G9, leaders_time_format_morning) # time 
-            else:
-                if cell_G9[:2] == "21":
-                    worksheet.write("G9", "昨"+cell_G9, leaders_time_format_not_morning) # time
-                else:
-                    worksheet.write("G9", cell_G9, leaders_time_format_not_morning) # time 
-
-            if int(cell_G10[:2]) <= TIME_THRESHOLD:
-                worksheet.write("G10", cell_G10, leaders_time_format_morning) # time 
-            else:
-                if cell_G10[:2] == "21":
-                    worksheet.write("G10", "昨"+cell_G10, leaders_time_format_not_morning) # time 
-                else:
-                    worksheet.write("G10", cell_G10, leaders_time_format_not_morning) # time 
-
-            worksheet.merge_range("D9:D10",cell_D9, text_format)  
-            worksheet.merge_range("F9:F10",cell_F9, text_format) 
-            worksheet.write("H9", cell_H9,text_format)
-            worksheet.write("H10", cell_H10, text_format)
-
-            # 桃2隊 tao2_df
-            try:
-                if int(cell_C11[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("C11:C12",cell_C11, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("C11:C12",cell_C11, captains_time_format_not_morning)
-
-            except:
-                worksheet.merge_range("C11:C12",cell_C11, text_format_10) # time 
-
-            try:
-                if int(cell_E11[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("E11:E12",cell_E11, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("E11:E12",cell_E11, captains_time_format_not_morning)
-            except:
-                worksheet.merge_range("E11:E12",cell_E11, text_format_10) # time
-
-
-            if int(cell_G11[:2]) <= TIME_THRESHOLD:
-                worksheet.write("G11", cell_G11, leaders_time_format_morning) # time 
-            else:
-                if cell_G11[:2] == "21":
-                    worksheet.write("G11", "昨"+cell_G11, leaders_time_format_not_morning) # time 
-                else:
-                    worksheet.write("G11", cell_G11, leaders_time_format_not_morning) # time         
-
-            if int(cell_G12[:2]) <= TIME_THRESHOLD:
-                worksheet.write("G12", cell_G12, leaders_time_format_morning) # time 
-            else:
-                if cell_G12[:2] =="21":
-                    worksheet.write("G12", "昨"+cell_G12, leaders_time_format_not_morning) # time 
-                else:
-                    worksheet.write("G12", cell_G12, leaders_time_format_not_morning) # time 
-
-            worksheet.merge_range("D11:D12",cell_D11, text_format)
-            worksheet.merge_range("F11:F12",cell_F11, text_format)
-            worksheet.write("H11", cell_H11,text_format)
-            worksheet.write("H12", cell_H12, text_format)
-
-            # 桃4隊 tao4_df
-            try:
-                if int(cell_C13[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("C13:C14",cell_C13, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("C13:C14",cell_C13, captains_time_format_not_morning)
-
-            except:
-                worksheet.merge_range("C13:C14",cell_C13, text_format_10) # time 
-
-            try:
-                if int(cell_E13[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("E13:E14",cell_E13, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("E13:E14",cell_E13, captains_time_format_not_morning)
-            except:
-                worksheet.merge_range("E13:E14",cell_E13, text_format_10) # time
-
-
-            if int(cell_G13[:2]) <= TIME_THRESHOLD:
-                worksheet.write("G13", cell_G13, leaders_time_format_morning) # time 
-            else:
-                if cell_G13[:2] == "21":
-                    worksheet.write("G13", "昨"+cell_G13, leaders_time_format_not_morning) # time         
-                else:
-                    worksheet.write("G13", cell_G13, leaders_time_format_not_morning) # time 
-
-            if int(cell_G14[:2]) <= TIME_THRESHOLD:
-                worksheet.write("G14", cell_G14, leaders_time_format_morning) # time 
-            else:
-                if cell_G14[:2] == "21":
-                    worksheet.write("G14", "昨"+cell_G14, leaders_time_format_not_morning) # time 
-                else:
-                    worksheet.write("G14", cell_G14, leaders_time_format_not_morning) # time 
-
-            worksheet.merge_range("D13:D14",cell_D13, text_format)
-            worksheet.merge_range("F13:F14",cell_F13, text_format)
-            worksheet.write("H13", cell_H13,text_format)
-            worksheet.write("H14", cell_H14, text_format)
-
-            # 桃5隊 tao5_df
-            try:
-                if int(cell_C15[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("C15:C16",cell_C15, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("C15:C16",cell_C15, captains_time_format_not_morning)
-
-            except:
-                worksheet.merge_range("C15:C16",cell_C15, text_format_10) # time 
-
-            try:
-                if int(cell_E15[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("E15:E16",cell_E15, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("E15:E16",cell_E15, captains_time_format_not_morning)
-            except:
-                worksheet.merge_range("E15:E16",cell_E15, text_format_10) # time
-
-            if int(cell_G15[:2]) <= TIME_THRESHOLD:
-                worksheet.write("G15", cell_G15, leaders_time_format_morning) # time 
-            else:
-                if cell_G15[:2] == "21":
-                    worksheet.write("G15", "昨"+cell_G15, leaders_time_format_not_morning) # time 
-                else:
-                    worksheet.write("G15", cell_G15, leaders_time_format_not_morning) # time    
-
-            if int(cell_G16[:2]) <= TIME_THRESHOLD:
-                worksheet.write("G16", cell_G16, leaders_time_format_morning) # time 
-            else:
-                if cell_G16[:2] == "21":
-                    worksheet.write("G16", "昨"+cell_G16, leaders_time_format_not_morning) # time 
-                else:
-                    worksheet.write("G16", cell_G16, leaders_time_format_not_morning) # time 
-
-            worksheet.merge_range("D15:D16",cell_D15, text_format)
-            worksheet.merge_range("F15:F16",cell_F15, text_format)
-            worksheet.write("H15", cell_H15,text_format)
-            worksheet.write("H16", cell_H16, text_format)
-
-
-            # 桃3隊 tao3_df
-            try:
-                if int(cell_C17[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("C17:C20",cell_C17, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("C17:C20",cell_C17, captains_time_format_not_morning)
-
-            except:
-                worksheet.merge_range("C17:C20",cell_C17, text_format_10) # time 
-
-            try:
-                if int(cell_E17[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("E17:E20",cell_E17, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("E17:E20",cell_E17, captains_time_format_not_morning)
-            except:
-                worksheet.merge_range("E17:E20",cell_E17, text_format_10) # time
-
-            if int(cell_G17.split("-")[0]) <= TIME_THRESHOLD:
-                worksheet.write("G17", cell_G17, leaders_time_format_morning) # time 
-            else:
-                worksheet.write("G17", cell_G17, leaders_time_format_not_morning) # time 
-
-            if int(cell_G18.split("-")[0]) <= TIME_THRESHOLD:
-                worksheet.write("G18", cell_G18, leaders_time_format_morning) # time 
-            else:
-                worksheet.write("G18", cell_G18, leaders_time_format_not_morning) # time 
-
-            if int(cell_G19.split("-")[0]) <= TIME_THRESHOLD:
-                worksheet.write("G19", cell_G19, leaders_time_format_morning) # time 
-            else:
-                worksheet.write("G19", cell_G19, leaders_time_format_not_morning) # time 
-
-            if int(cell_G20.split("-")[0]) <= TIME_THRESHOLD:
-                worksheet.write("G20", cell_G20, leaders_time_format_morning) # time 
-            else:
-                if cell_G20[-2:] == "09":
-                    worksheet.write("G20", "21-明9", leaders_time_format_not_morning) # time 
-                else:
-                    worksheet.write("G20", cell_G20, leaders_time_format_not_morning) # time 
-
-
-            worksheet.merge_range("D17:D20",cell_D17, text_format)
-            worksheet.merge_range("F17:F20",cell_F17, text_format)
-            worksheet.write("H17", cell_H17,text_format)
-            worksheet.write("H18", cell_H18, text_format)
-            worksheet.write("H19", cell_H19, text_format)
-            worksheet.write("H20", cell_H20, text_format)
-
-            # 特殊勤務 specialForce_df
-            try:
-                if int(cell_C21[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("C21:C23",cell_C21, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("C21:C23",cell_C21, captains_time_format_not_morning)
-
-            except:
-                worksheet.merge_range("C21:C23",cell_C21, text_format_10) # time 
-
-            try:
-                if int(cell_E21[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("E21:E23",cell_E21, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("E21:E23",cell_E21, captains_time_format_not_morning)
-            except:
-                worksheet.merge_range("E21:E23",cell_E21, text_format_10) # time
-
-            if int(cell_G21.split("-")[0]) <= TIME_THRESHOLD:
-                worksheet.write("G21", cell_G21, leaders_time_format_morning) # time 
-            else:
-                if cell_G21[:2] == "22":
-                    worksheet.write("G21", "昨"+cell_G21, leaders_time_format_not_morning) # time 
-                else:
-                    worksheet.write("G21", cell_G21, leaders_time_format_not_morning) # time 
-
-            if int(cell_G22.split("-")[0]) <= TIME_THRESHOLD:
-                worksheet.write("G22", cell_G22, leaders_time_format_morning) # time 
-            else:
-                worksheet.write("G22", cell_G22, leaders_time_format_not_morning) # time 
-
-            worksheet.write("G23", "22-明10", leaders_time_format_not_morning) # time 
-            worksheet.merge_range("D21:D23",cell_D21, text_format)
-            worksheet.merge_range("F21:F23",cell_F21, text_format)
-            worksheet.write("H21", cell_H21,text_format)
-            worksheet.write("H22", cell_H22, text_format)
-            worksheet.write("H23", cell_H21, text_format)
-
-            #'''====================== 外機港隊 ======================'''
-            # keelunng_df
-            try:
-                if int(cell_C25[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("C25:C27",cell_C25, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("C25:C27",cell_C25, captains_time_format_not_morning)
-
-            except:
-                worksheet.merge_range("C25:C27",cell_C25, text_format_10) # time 
-
-            try:
-                if int(cell_E25[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("E25:E27",cell_E25, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("E25:E27",cell_E25, captains_time_format_not_morning)
-            except:
-                worksheet.merge_range("E25:E27",cell_E25, text_format_10) # time
-                
-            if int(cell_G25.split("-")[0]) <= TIME_THRESHOLD:
-                worksheet.write("G25", cell_G25, leaders_time_format_morning) # time 
-            else:
-                worksheet.write("G25", "昨22-10", leaders_time_format_not_morning) # time 
-
-            if int(cell_G26.split("-")[0]) <= TIME_THRESHOLD:
-                worksheet.write("G26", cell_G26, leaders_time_format_morning) # time 
-            else:
-                worksheet.write("G26", cell_G26, leaders_time_format_not_morning) # time 
-
-
-            worksheet.write("G27", "22-明10", leaders_time_format_not_morning) # time 
-
-
-            worksheet.merge_range("D25:D27",cell_D25, text_format)
-            worksheet.merge_range("F25:F27",cell_F25, text_format)
-            worksheet.write("H25", cell_H25,text_format)
-            worksheet.write("H26", cell_H26, text_format)
-            worksheet.write("H27", cell_H25, text_format)
-
-            # songshang_df
-            try:
-                if int(cell_C28[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("C28:C29",cell_C28, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("C28:C29",cell_C28, captains_time_format_not_morning)
-
-            except:
-                worksheet.merge_range("C28:C29",cell_C28, text_format_10) # time 
-
-            try:
-                if int(cell_E28[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("E28:E29",cell_E28, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("E28:E29",cell_E28, captains_time_format_not_morning)
-            except:
-                worksheet.merge_range("E28:E29",cell_E28, text_format_10) # time
-
-            if int(cell_G28.split("-")[0]) <= TIME_THRESHOLD:
-                worksheet.write("G28", cell_G28, leaders_time_format_morning) # time 
-            else:
-                worksheet.write("G28", cell_G28, leaders_time_format_not_morning) # time 
-            if int(cell_G29.split("-")[0]) <= TIME_THRESHOLD:
-                worksheet.write("G29", cell_G29, leaders_time_format_morning) # time 
-            else:
-                worksheet.write("G29", cell_G29, leaders_time_format_not_morning) # time 
-
-            worksheet.merge_range("D28:D29",cell_D28, text_format)
-            worksheet.merge_range("F28:F29",cell_F28, text_format)
-            worksheet.write("H28", cell_H28,text_format)
-            worksheet.write("H29", cell_H29, text_format)
-
-            # taichung_df
-            try:
-                if int(cell_C30[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("C30:C31",cell_C30, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("C30:C31",cell_C30, captains_time_format_not_morning)
-
-            except:
-                worksheet.merge_range("C30:C31",cell_C30, text_format_10) # time 
-
-            try:
-                if int(cell_E30[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("E30:E31",cell_E30, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("E30:E31",cell_E30, captains_time_format_not_morning)
-            except:
-                worksheet.merge_range("E30:E31",cell_E30, text_format_10) # time
-
-
-            if int(cell_G30[:2]) <= TIME_THRESHOLD:
-                worksheet.write("G30", cell_G30, leaders_time_format_morning) # time 
-            else:
-                worksheet.write("G30", cell_G30, leaders_time_format_not_morning) # time 
-            if int(cell_G31[:2]) <= TIME_THRESHOLD:
-                worksheet.write("G31", cell_G31, leaders_time_format_morning) # time 
-            else:
-                worksheet.write("G31", cell_G31, leaders_time_format_not_morning) # time 
-
-            worksheet.merge_range("D30:D31",cell_D30, text_format)
-            worksheet.merge_range("F30:F31",cell_F30, text_format)
-            worksheet.write("H30", cell_H30,text_format)
-            worksheet.write("H31", cell_H31, text_format)
-
-            # kaohsiungAirport_df
-            try:
-                if int(cell_C32[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("C32:C33",cell_C32, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("C32:C33",cell_C32, captains_time_format_not_morning)
-
-            except:
-                worksheet.merge_range("C32:C33",cell_C32, text_format_10) # time 
-
-            try:
-                if int(cell_E32[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("E32:E33",cell_E32, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("E32:E33",cell_E32, captains_time_format_not_morning)
-            except:
-                worksheet.merge_range("E32:E33",cell_E32, text_format_10) # time
-
-            if int(cell_G32.split("-")[0]) <= TIME_THRESHOLD:
-                worksheet.write("G32", cell_G32, leaders_time_format_morning) # time 
-            else:
-                worksheet.write("G32", cell_G32, leaders_time_format_not_morning) # time 
-            if int(cell_G33.split("-")[0]) <= TIME_THRESHOLD:
-                worksheet.write("G33", cell_G33, leaders_time_format_morning) # time 
-            else:
-                worksheet.write("G33", cell_G33, leaders_time_format_not_morning) # time 
-
-            worksheet.merge_range("D32:D33",cell_D32, text_format)
-            worksheet.merge_range("F32:F33",cell_F32, text_format)
-            worksheet.write("H32", cell_H32,text_format)
-            worksheet.write("H33", cell_H33, text_format)
-
-            # kaohsiungPort_df
-            try:
-                if int(cell_C34[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("C34:C35",cell_C34, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("C34:C35",cell_C34, captains_time_format_not_morning)
-
-            except:
-                worksheet.merge_range("C34:C35",cell_C34, text_format_10) # time 
-
-            try:
-                if int(cell_E34[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("E34:E35",cell_E34, captains_time_format_morning) # time 
-                else:
-                    worksheet.merge_range("E34:E35",cell_E34, captains_time_format_not_morning)
-            except:
-                worksheet.merge_range("E34:E35",cell_E34, text_format_10) # time
-
-
-            worksheet.merge_range("D34:D35",cell_D34, text_format)
-            worksheet.merge_range("F34:F35",cell_F34, text_format)
-
-            if cell_G35 == None:
-                if int(cell_G34.split("-")[0]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("G34:G35", cell_G34, leaders_time_format_morning)
-                else:
-                    if cell_G34[:2] == "20":
-                        worksheet.merge_range("G34:G35", "昨"+cell_G34, leaders_time_format_not_morning)
+                try:
+                    if int(cell_E9[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("E9:E10",cell_E9, captains_time_format_morning) # time 
                     else:
-                        worksheet.merge_range("G34:G35", cell_G34, leaders_time_format_not_morning)
-                
-                worksheet.merge_range("H34:H35", cell_H34,text_format)
-            else:
-                if int(cell_G34.split("-")[0]) <= TIME_THRESHOLD:
-                    worksheet.write("G34", cell_G34, leaders_time_format_morning) # time 
+                        worksheet.merge_range("E9:E10",cell_E9, captains_time_format_not_morning)
+                except:
+                    worksheet.merge_range("E9:E10",cell_E9, text_format_10) # time
+
+                # 桃一隊 leaders
+                if int(cell_G9[:2]) <= TIME_THRESHOLD:
+                    worksheet.write("G9", cell_G9, leaders_time_format_morning) # time 
                 else:
-                    if cell_G34[:2] == "20":
-                        worksheet.write("G34:G35", "昨"+cell_G34, leaders_time_format_not_morning)
+                    if cell_G9[:2] == "21":
+                        worksheet.write("G9", "昨"+cell_G9, leaders_time_format_not_morning) # time
                     else:
-                        worksheet.write("G34:G35", cell_G34, leaders_time_format_not_morning)
+                        worksheet.write("G9", cell_G9, leaders_time_format_not_morning) # time 
 
-                if int(cell_G35.split("-")[0]) <= TIME_THRESHOLD:
-                    worksheet.write("G35", cell_G35, leaders_time_format_morning) # time 
+                if int(cell_G10[:2]) <= TIME_THRESHOLD:
+                    worksheet.write("G10", cell_G10, leaders_time_format_morning) # time 
                 else:
-                    if cell_G35[:2] == "20":
-                        worksheet.write("G35", "昨"+cell_G35, leaders_time_format_not_morning) # time 
+                    if cell_G10[:2] == "21":
+                        worksheet.write("G10", "昨"+cell_G10, leaders_time_format_not_morning) # time 
                     else:
-                        worksheet.write("G35", cell_G35, leaders_time_format_not_morning) # time 
+                        worksheet.write("G10", cell_G10, leaders_time_format_not_morning) # time 
 
-                worksheet.write("H34", cell_H34,text_format)
-                worksheet.write("H35", cell_H35, text_format)
+                worksheet.merge_range("D9:D10",cell_D9, text_format)  
+                worksheet.merge_range("F9:F10",cell_F9, text_format) 
+                worksheet.write("H9", cell_H9,text_format)
+                worksheet.write("H10", cell_H10, text_format)
 
-            # jingmen_df
-            try:
-                if int(cell_C36[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("C36:C37",cell_C36, captains_time_format_morning) # time 
+                # 桃2隊 tao2_df
+                try:
+                    if int(cell_C11[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("C11:C12",cell_C11, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("C11:C12",cell_C11, captains_time_format_not_morning)
+
+                except:
+                    worksheet.merge_range("C11:C12",cell_C11, text_format_10) # time 
+
+                try:
+                    if int(cell_E11[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("E11:E12",cell_E11, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("E11:E12",cell_E11, captains_time_format_not_morning)
+                except:
+                    worksheet.merge_range("E11:E12",cell_E11, text_format_10) # time
+
+
+                if int(cell_G11[:2]) <= TIME_THRESHOLD:
+                    worksheet.write("G11", cell_G11, leaders_time_format_morning) # time 
                 else:
-                    worksheet.merge_range("C36:C37",cell_C36, captains_time_format_not_morning)
+                    if cell_G11[:2] == "21":
+                        worksheet.write("G11", "昨"+cell_G11, leaders_time_format_not_morning) # time 
+                    else:
+                        worksheet.write("G11", cell_G11, leaders_time_format_not_morning) # time         
 
-            except:
-                worksheet.merge_range("C36:C37",cell_C36, text_format_10) # time 
-
-            try:
-                if int(cell_E36[:2]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("E36:E37",cell_E36, captains_time_format_morning) # time 
+                if int(cell_G12[:2]) <= TIME_THRESHOLD:
+                    worksheet.write("G12", cell_G12, leaders_time_format_morning) # time 
                 else:
-                    worksheet.merge_range("E36:E37",cell_E36, captains_time_format_not_morning)
-            except:
-                worksheet.merge_range("E36:E37",cell_E36, text_format_10) # time
+                    if cell_G12[:2] =="21":
+                        worksheet.write("G12", "昨"+cell_G12, leaders_time_format_not_morning) # time 
+                    else:
+                        worksheet.write("G12", cell_G12, leaders_time_format_not_morning) # time 
 
-            worksheet.merge_range("D36:D37",cell_D36, text_format)
-            worksheet.merge_range("F36:F37",cell_F36, text_format)
+                worksheet.merge_range("D11:D12",cell_D11, text_format)
+                worksheet.merge_range("F11:F12",cell_F11, text_format)
+                worksheet.write("H11", cell_H11,text_format)
+                worksheet.write("H12", cell_H12, text_format)
 
-            if cell_G37 == None:
-                if int(cell_G36.split("-")[0]) <= TIME_THRESHOLD:
-                    worksheet.merge_range("G36:G37", cell_G36, leaders_time_format_morning)
+                # 桃4隊 tao4_df
+                try:
+                    if int(cell_C13[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("C13:C14",cell_C13, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("C13:C14",cell_C13, captains_time_format_not_morning)
+
+                except:
+                    worksheet.merge_range("C13:C14",cell_C13, text_format_10) # time 
+
+                try:
+                    if int(cell_E13[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("E13:E14",cell_E13, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("E13:E14",cell_E13, captains_time_format_not_morning)
+                except:
+                    worksheet.merge_range("E13:E14",cell_E13, text_format_10) # time
+
+
+                if int(cell_G13[:2]) <= TIME_THRESHOLD:
+                    worksheet.write("G13", cell_G13, leaders_time_format_morning) # time 
                 else:
-                    worksheet.merge_range("G36:G37", cell_G36, leaders_time_format_not_morning)
-                
-                if cell_H36 == "長王愷":
-                    worksheet.merge_range("H36:H37", "王愷",text_format)
+                    if cell_G13[:2] == "21":
+                        worksheet.write("G13", "昨"+cell_G13, leaders_time_format_not_morning) # time         
+                    else:
+                        worksheet.write("G13", cell_G13, leaders_time_format_not_morning) # time 
+
+                if int(cell_G14[:2]) <= TIME_THRESHOLD:
+                    worksheet.write("G14", cell_G14, leaders_time_format_morning) # time 
                 else:
-                    worksheet.merge_range("H36:H37", cell_H36,text_format)
-            else:
-                if int(cell_G36.split("-")[0]) <= TIME_THRESHOLD:
-                    worksheet.write("G36", cell_G36, leaders_time_format_morning) # time 
+                    if cell_G14[:2] == "21":
+                        worksheet.write("G14", "昨"+cell_G14, leaders_time_format_not_morning) # time 
+                    else:
+                        worksheet.write("G14", cell_G14, leaders_time_format_not_morning) # time 
+
+                worksheet.merge_range("D13:D14",cell_D13, text_format)
+                worksheet.merge_range("F13:F14",cell_F13, text_format)
+                worksheet.write("H13", cell_H13,text_format)
+                worksheet.write("H14", cell_H14, text_format)
+
+                # 桃5隊 tao5_df
+                try:
+                    if int(cell_C15[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("C15:C16",cell_C15, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("C15:C16",cell_C15, captains_time_format_not_morning)
+
+                except:
+                    worksheet.merge_range("C15:C16",cell_C15, text_format_10) # time 
+
+                try:
+                    if int(cell_E15[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("E15:E16",cell_E15, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("E15:E16",cell_E15, captains_time_format_not_morning)
+                except:
+                    worksheet.merge_range("E15:E16",cell_E15, text_format_10) # time
+
+                if int(cell_G15[:2]) <= TIME_THRESHOLD:
+                    worksheet.write("G15", cell_G15, leaders_time_format_morning) # time 
                 else:
-                    worksheet.write("G36", cell_G36, leaders_time_format_not_morning) # time 
-                if int(cell_G37.split("-")[0]) <= TIME_THRESHOLD:
-                    worksheet.write("G37", cell_G37, leaders_time_format_morning) # time 
+                    if cell_G15[:2] == "21":
+                        worksheet.write("G15", "昨"+cell_G15, leaders_time_format_not_morning) # time 
+                    else:
+                        worksheet.write("G15", cell_G15, leaders_time_format_not_morning) # time    
+
+                if int(cell_G16[:2]) <= TIME_THRESHOLD:
+                    worksheet.write("G16", cell_G16, leaders_time_format_morning) # time 
                 else:
-                    worksheet.write("G37", cell_G37, leaders_time_format_not_morning) # time 
+                    if cell_G16[:2] == "21":
+                        worksheet.write("G16", "昨"+cell_G16, leaders_time_format_not_morning) # time 
+                    else:
+                        worksheet.write("G16", cell_G16, leaders_time_format_not_morning) # time 
 
-                if cell_H36 == "長王愷":
-                    worksheet.write("H36", "王愷",text_format)
+                worksheet.merge_range("D15:D16",cell_D15, text_format)
+                worksheet.merge_range("F15:F16",cell_F15, text_format)
+                worksheet.write("H15", cell_H15,text_format)
+                worksheet.write("H16", cell_H16, text_format)
+
+
+                # 桃3隊 tao3_df
+                try:
+                    if int(cell_C17[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("C17:C20",cell_C17, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("C17:C20",cell_C17, captains_time_format_not_morning)
+
+                except:
+                    worksheet.merge_range("C17:C20",cell_C17, text_format_10) # time 
+
+                try:
+                    if int(cell_E17[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("E17:E20",cell_E17, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("E17:E20",cell_E17, captains_time_format_not_morning)
+                except:
+                    worksheet.merge_range("E17:E20",cell_E17, text_format_10) # time
+
+                if int(cell_G17.split("-")[0]) <= TIME_THRESHOLD:
+                    worksheet.write("G17", cell_G17, leaders_time_format_morning) # time 
                 else:
-                    worksheet.write("H36", cell_H36,text_format)
+                    worksheet.write("G17", cell_G17, leaders_time_format_not_morning) # time 
 
-                if cell_H37 == "長王愷":
-                    worksheet.write("H37", "王愷",text_format)
+                if int(cell_G18.split("-")[0]) <= TIME_THRESHOLD:
+                    worksheet.write("G18", cell_G18, leaders_time_format_morning) # time 
                 else:
-                    worksheet.write("H37", cell_H37, text_format)
+                    worksheet.write("G18", cell_G18, leaders_time_format_not_morning) # time 
+
+                if int(cell_G19.split("-")[0]) <= TIME_THRESHOLD:
+                    worksheet.write("G19", cell_G19, leaders_time_format_morning) # time 
+                else:
+                    worksheet.write("G19", cell_G19, leaders_time_format_not_morning) # time 
+
+                if int(cell_G20.split("-")[0]) <= TIME_THRESHOLD:
+                    worksheet.write("G20", cell_G20, leaders_time_format_morning) # time 
+                else:
+                    if cell_G20[-2:] == "09":
+                        worksheet.write("G20", "21-明9", leaders_time_format_not_morning) # time 
+                    else:
+                        worksheet.write("G20", cell_G20, leaders_time_format_not_morning) # time 
 
 
-            worksheet.conditional_format('C11:C12',{'type':"text",'criteria':"not containing",
-                                                "value":"|","format":grey_bg_color,
-                                                "multi_range":"C11:C12 E11:E12 C15:C16 E15:E16 C25:C27 E25:E27 C30:C31 E30:E31 C34:C35 E34:E35"})
+                worksheet.merge_range("D17:D20",cell_D17, text_format)
+                worksheet.merge_range("F17:F20",cell_F17, text_format)
+                worksheet.write("H17", cell_H17,text_format)
+                worksheet.write("H18", cell_H18, text_format)
+                worksheet.write("H19", cell_H19, text_format)
+                worksheet.write("H20", cell_H20, text_format)
 
-            #'''***************** END OF WRITING TO CELL *******************'''
+                # 特殊勤務 specialForce_df
+                try:
+                    if int(cell_C21[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("C21:C23",cell_C21, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("C21:C23",cell_C21, captains_time_format_not_morning)
 
-        st.markdown("### 3. 檔案下載")
+                except:
+                    worksheet.merge_range("C21:C23",cell_C21, text_format_10) # time 
 
-        # Add a placeholder
-        latest_iteration = st.empty()
-        bar = st.progress(0)
+                try:
+                    if int(cell_E21[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("E21:E23",cell_E21, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("E21:E23",cell_E21, captains_time_format_not_morning)
+                except:
+                    worksheet.merge_range("E21:E23",cell_E21, text_format_10) # time
 
-        for i in range(100):
-            # Update the progress bar with each iteration.
-            latest_iteration.text(f'資料處理中 ... {i+1} %')
-            bar.progress(i + 1)
-            time.sleep(0.1)
+                if int(cell_G21.split("-")[0]) <= TIME_THRESHOLD:
+                    worksheet.write("G21", cell_G21, leaders_time_format_morning) # time 
+                else:
+                    if cell_G21[:2] == "22":
+                        worksheet.write("G21", "昨"+cell_G21, leaders_time_format_not_morning) # time 
+                    else:
+                        worksheet.write("G21", cell_G21, leaders_time_format_not_morning) # time 
 
-        message = st.success('可以下載了')
-        # st.balloons()
+                if int(cell_G22.split("-")[0]) <= TIME_THRESHOLD:
+                    worksheet.write("G22", cell_G22, leaders_time_format_morning) # time 
+                else:
+                    worksheet.write("G22", cell_G22, leaders_time_format_not_morning) # time 
 
-        st.download_button(
-            label=f"幹部出勤表{MONTH}月{DAY}日.xlsx",
-            data=output.getvalue(),
-            file_name=excel_file_name,
-            mime="application/vnd.ms-excel"
-        )
+                worksheet.write("G23", "22-明10", leaders_time_format_not_morning) # time 
+                worksheet.merge_range("D21:D23",cell_D21, text_format)
+                worksheet.merge_range("F21:F23",cell_F21, text_format)
+                worksheet.write("H21", cell_H21,text_format)
+                worksheet.write("H22", cell_H22, text_format)
+                worksheet.write("H23", cell_H21, text_format)
 
- 
+                #'''====================== 外機港隊 ======================'''
+                # keelunng_df
+                try:
+                    if int(cell_C25[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("C25:C27",cell_C25, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("C25:C27",cell_C25, captains_time_format_not_morning)
+
+                except:
+                    worksheet.merge_range("C25:C27",cell_C25, text_format_10) # time 
+
+                try:
+                    if int(cell_E25[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("E25:E27",cell_E25, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("E25:E27",cell_E25, captains_time_format_not_morning)
+                except:
+                    worksheet.merge_range("E25:E27",cell_E25, text_format_10) # time
+                    
+                if int(cell_G25.split("-")[0]) <= TIME_THRESHOLD:
+                    worksheet.write("G25", cell_G25, leaders_time_format_morning) # time 
+                else:
+                    worksheet.write("G25", "昨22-10", leaders_time_format_not_morning) # time 
+
+                if int(cell_G26.split("-")[0]) <= TIME_THRESHOLD:
+                    worksheet.write("G26", cell_G26, leaders_time_format_morning) # time 
+                else:
+                    worksheet.write("G26", cell_G26, leaders_time_format_not_morning) # time 
+
+
+                worksheet.write("G27", "22-明10", leaders_time_format_not_morning) # time 
+
+
+                worksheet.merge_range("D25:D27",cell_D25, text_format)
+                worksheet.merge_range("F25:F27",cell_F25, text_format)
+                worksheet.write("H25", cell_H25,text_format)
+                worksheet.write("H26", cell_H26, text_format)
+                worksheet.write("H27", cell_H25, text_format)
+
+                # songshang_df
+                try:
+                    if int(cell_C28[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("C28:C29",cell_C28, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("C28:C29",cell_C28, captains_time_format_not_morning)
+
+                except:
+                    worksheet.merge_range("C28:C29",cell_C28, text_format_10) # time 
+
+                try:
+                    if int(cell_E28[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("E28:E29",cell_E28, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("E28:E29",cell_E28, captains_time_format_not_morning)
+                except:
+                    worksheet.merge_range("E28:E29",cell_E28, text_format_10) # time
+
+                if int(cell_G28.split("-")[0]) <= TIME_THRESHOLD:
+                    worksheet.write("G28", cell_G28, leaders_time_format_morning) # time 
+                else:
+                    worksheet.write("G28", cell_G28, leaders_time_format_not_morning) # time 
+                if int(cell_G29.split("-")[0]) <= TIME_THRESHOLD:
+                    worksheet.write("G29", cell_G29, leaders_time_format_morning) # time 
+                else:
+                    worksheet.write("G29", cell_G29, leaders_time_format_not_morning) # time 
+
+                worksheet.merge_range("D28:D29",cell_D28, text_format)
+                worksheet.merge_range("F28:F29",cell_F28, text_format)
+                worksheet.write("H28", cell_H28,text_format)
+                worksheet.write("H29", cell_H29, text_format)
+
+                # taichung_df
+                try:
+                    if int(cell_C30[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("C30:C31",cell_C30, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("C30:C31",cell_C30, captains_time_format_not_morning)
+
+                except:
+                    worksheet.merge_range("C30:C31",cell_C30, text_format_10) # time 
+
+                try:
+                    if int(cell_E30[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("E30:E31",cell_E30, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("E30:E31",cell_E30, captains_time_format_not_morning)
+                except:
+                    worksheet.merge_range("E30:E31",cell_E30, text_format_10) # time
+
+
+                if int(cell_G30[:2]) <= TIME_THRESHOLD:
+                    worksheet.write("G30", cell_G30, leaders_time_format_morning) # time 
+                else:
+                    worksheet.write("G30", cell_G30, leaders_time_format_not_morning) # time 
+                if int(cell_G31[:2]) <= TIME_THRESHOLD:
+                    worksheet.write("G31", cell_G31, leaders_time_format_morning) # time 
+                else:
+                    worksheet.write("G31", cell_G31, leaders_time_format_not_morning) # time 
+
+                worksheet.merge_range("D30:D31",cell_D30, text_format)
+                worksheet.merge_range("F30:F31",cell_F30, text_format)
+                worksheet.write("H30", cell_H30,text_format)
+                worksheet.write("H31", cell_H31, text_format)
+
+                # kaohsiungAirport_df
+                try:
+                    if int(cell_C32[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("C32:C33",cell_C32, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("C32:C33",cell_C32, captains_time_format_not_morning)
+
+                except:
+                    worksheet.merge_range("C32:C33",cell_C32, text_format_10) # time 
+
+                try:
+                    if int(cell_E32[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("E32:E33",cell_E32, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("E32:E33",cell_E32, captains_time_format_not_morning)
+                except:
+                    worksheet.merge_range("E32:E33",cell_E32, text_format_10) # time
+
+                if int(cell_G32.split("-")[0]) <= TIME_THRESHOLD:
+                    worksheet.write("G32", cell_G32, leaders_time_format_morning) # time 
+                else:
+                    worksheet.write("G32", cell_G32, leaders_time_format_not_morning) # time 
+                if int(cell_G33.split("-")[0]) <= TIME_THRESHOLD:
+                    worksheet.write("G33", cell_G33, leaders_time_format_morning) # time 
+                else:
+                    worksheet.write("G33", cell_G33, leaders_time_format_not_morning) # time 
+
+                worksheet.merge_range("D32:D33",cell_D32, text_format)
+                worksheet.merge_range("F32:F33",cell_F32, text_format)
+                worksheet.write("H32", cell_H32,text_format)
+                worksheet.write("H33", cell_H33, text_format)
+
+                # kaohsiungPort_df
+                try:
+                    if int(cell_C34[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("C34:C35",cell_C34, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("C34:C35",cell_C34, captains_time_format_not_morning)
+
+                except:
+                    worksheet.merge_range("C34:C35",cell_C34, text_format_10) # time 
+
+                try:
+                    if int(cell_E34[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("E34:E35",cell_E34, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("E34:E35",cell_E34, captains_time_format_not_morning)
+                except:
+                    worksheet.merge_range("E34:E35",cell_E34, text_format_10) # time
+
+
+                worksheet.merge_range("D34:D35",cell_D34, text_format)
+                worksheet.merge_range("F34:F35",cell_F34, text_format)
+
+                if cell_G35 == None:
+                    if int(cell_G34.split("-")[0]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("G34:G35", cell_G34, leaders_time_format_morning)
+                    else:
+                        if cell_G34[:2] == "20":
+                            worksheet.merge_range("G34:G35", "昨"+cell_G34, leaders_time_format_not_morning)
+                        else:
+                            worksheet.merge_range("G34:G35", cell_G34, leaders_time_format_not_morning)
+                    
+                    worksheet.merge_range("H34:H35", cell_H34,text_format)
+                else:
+                    if int(cell_G34.split("-")[0]) <= TIME_THRESHOLD:
+                        worksheet.write("G34", cell_G34, leaders_time_format_morning) # time 
+                    else:
+                        if cell_G34[:2] == "20":
+                            worksheet.write("G34:G35", "昨"+cell_G34, leaders_time_format_not_morning)
+                        else:
+                            worksheet.write("G34:G35", cell_G34, leaders_time_format_not_morning)
+
+                    if int(cell_G35.split("-")[0]) <= TIME_THRESHOLD:
+                        worksheet.write("G35", cell_G35, leaders_time_format_morning) # time 
+                    else:
+                        if cell_G35[:2] == "20":
+                            worksheet.write("G35", "昨"+cell_G35, leaders_time_format_not_morning) # time 
+                        else:
+                            worksheet.write("G35", cell_G35, leaders_time_format_not_morning) # time 
+
+                    worksheet.write("H34", cell_H34,text_format)
+                    worksheet.write("H35", cell_H35, text_format)
+
+                # jingmen_df
+                try:
+                    if int(cell_C36[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("C36:C37",cell_C36, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("C36:C37",cell_C36, captains_time_format_not_morning)
+
+                except:
+                    worksheet.merge_range("C36:C37",cell_C36, text_format_10) # time 
+
+                try:
+                    if int(cell_E36[:2]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("E36:E37",cell_E36, captains_time_format_morning) # time 
+                    else:
+                        worksheet.merge_range("E36:E37",cell_E36, captains_time_format_not_morning)
+                except:
+                    worksheet.merge_range("E36:E37",cell_E36, text_format_10) # time
+
+                worksheet.merge_range("D36:D37",cell_D36, text_format)
+                worksheet.merge_range("F36:F37",cell_F36, text_format)
+
+                if cell_G37 == None:
+                    if int(cell_G36.split("-")[0]) <= TIME_THRESHOLD:
+                        worksheet.merge_range("G36:G37", cell_G36, leaders_time_format_morning)
+                    else:
+                        worksheet.merge_range("G36:G37", cell_G36, leaders_time_format_not_morning)
+                    
+                    if cell_H36 == "長王愷":
+                        worksheet.merge_range("H36:H37", "王愷",text_format)
+                    else:
+                        worksheet.merge_range("H36:H37", cell_H36,text_format)
+                else:
+                    if int(cell_G36.split("-")[0]) <= TIME_THRESHOLD:
+                        worksheet.write("G36", cell_G36, leaders_time_format_morning) # time 
+                    else:
+                        worksheet.write("G36", cell_G36, leaders_time_format_not_morning) # time 
+                    if int(cell_G37.split("-")[0]) <= TIME_THRESHOLD:
+                        worksheet.write("G37", cell_G37, leaders_time_format_morning) # time 
+                    else:
+                        worksheet.write("G37", cell_G37, leaders_time_format_not_morning) # time 
+
+                    if cell_H36 == "長王愷":
+                        worksheet.write("H36", "王愷",text_format)
+                    else:
+                        worksheet.write("H36", cell_H36,text_format)
+
+                    if cell_H37 == "長王愷":
+                        worksheet.write("H37", "王愷",text_format)
+                    else:
+                        worksheet.write("H37", cell_H37, text_format)
+
+
+                worksheet.conditional_format('C11:C12',{'type':"text",'criteria':"not containing",
+                                                    "value":"|","format":grey_bg_color,
+                                                    "multi_range":"C11:C12 E11:E12 C15:C16 E15:E16 C25:C27 E25:E27 C30:C31 E30:E31 C34:C35 E34:E35"})
+
+                #'''***************** END OF WRITING TO CELL *******************'''
+
+            st.markdown("### 3. Download Output")
+
+            # Add a placeholder
+            latest_iteration = st.empty()
+            bar = st.progress(0)
+
+            for i in range(100):
+                # Update the progress bar with each iteration.
+                latest_iteration.text(f'Processing ... {i+1} %')
+                bar.progress(i + 1)
+                time.sleep(0.1)
+
+            message = st.success('Done!')
+            # st.balloons()
+            if message:
+
+                st.download_button(
+                    label=f"Download_幹部出勤表{MONTH}月{DAY}日.xlsx",
+                    data=output.getvalue(),
+                    file_name=excel_file_name,
+                    mime="application/vnd.ms-excel"
+                )
+    else:
+        st.image("/Users/benchen/Desktop/港務_streamlit/haha.png")
+    
