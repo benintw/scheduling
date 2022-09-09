@@ -253,17 +253,21 @@ if __name__ == "__main__":
 
         st.markdown("### 1. Upload Files")
         # st.write("* Accepted file types: .xlsx, .xls, 或.docx 檔")
-        st.markdown("##### I agree:")
-        agree1 = st.checkbox("* Accepted file types: .xlsx, .xls, 或.docx 檔")
-        agree2 = st.checkbox("* Please save .doc file as .docx extension")
-        if agree1 and agree2:
+        st.markdown("##### I acknowledge that:")
+        col_1, col_2 = st.columns(2)
+        condition1 = col_1.checkbox("* .xlsx .xls .docx are the only acceptable file-types")
+        # agree2 = st.checkbox("* Please save .doc file as .docx extension")
+
+        # col_1, col_2 = st.columns(2)
+        condition2 = col_2.checkbox("* all WORD.doc files are converted to WORD.docx files")
+        if condition1 and condition2:
             st.write("Great ! ")
-
-        # st.write("* Please save .doc file as .docx extension")
-        need_help = st.button("how to convert to .docx?")
-
+            
+        need_help = st.button("How to convert to .docx?")
         if need_help:
             st.image("that.gif")
+
+
 
         uploaded_files = st.file_uploader('Upload the files',type=["xlsx","xls","docx"] ,accept_multiple_files=True)
         st.write("-"*100)
