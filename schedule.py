@@ -252,8 +252,14 @@ if __name__ == "__main__":
     if password == "worldpeace":
 
         st.markdown("### 1. Upload Files")
-        st.write("* Accepted file types: .xlsx, .xls, 或.docx 檔")
-        st.write("* Please save .doc file as .docx extension")
+        # st.write("* Accepted file types: .xlsx, .xls, 或.docx 檔")
+        st.markdown("##### I agree:")
+        agree1 = st.checkbox("* Accepted file types: .xlsx, .xls, 或.docx 檔")
+        agree2 = st.checkbox("* Please save .doc file as .docx extension")
+        if agree1 and agree2:
+            st.write("Great ! ")
+
+        # st.write("* Please save .doc file as .docx extension")
         need_help = st.button("how to convert to .docx?")
 
         if need_help:
@@ -1617,6 +1623,9 @@ if __name__ == "__main__":
                     file_name=excel_file_name,
                     mime="application/vnd.ms-excel"
                 )
+    elif password == "":
+        st.write("Enter Password")
+
     else:
-        st.image("haha.png")
+        st.image("haha2.png")
     
