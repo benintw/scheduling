@@ -248,6 +248,8 @@ if __name__ == "__main__":
     st.write("-"*100)
 
     st.markdown("### 1. 上傳檔案")
+    st.markdown("#### 只接受.xlsx, .xls, 和.docx 檔")
+    st.write("* 請把word 儲存為.docx *")
     uploaded_files = st.file_uploader('Upload the files',type=["xlsx","xls","docx"] ,accept_multiple_files=True)
     st.write("-"*100)
 
