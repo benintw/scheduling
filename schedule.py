@@ -257,7 +257,7 @@ if __name__ == "__main__":
         need_help = st.button("how to convert to .docx?")
 
         if need_help:
-            st.image("/Users/benchen/Desktop/港務_streamlit/that.gif")
+            st.image("that.gif")
 
         uploaded_files = st.file_uploader('Upload the files',type=["xlsx","xls","docx"] ,accept_multiple_files=True)
         st.write("-"*100)
@@ -1618,5 +1618,5 @@ if __name__ == "__main__":
                     mime="application/vnd.ms-excel"
                 )
     else:
-        st.image("/Users/benchen/Desktop/港務_streamlit/haha.png")
+        st.image("haha.png")
     
