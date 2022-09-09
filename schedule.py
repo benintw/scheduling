@@ -254,16 +254,16 @@ if __name__ == "__main__":
         st.markdown("### 1. Upload Files")
         # st.write("* Accepted file types: .xlsx, .xls, 或.docx 檔")
         st.markdown("##### I acknowledge that:")
-        col_1, col_2 = st.columns(2)
-        condition1 = col_1.checkbox("* .xlsx .xls .docx are the only acceptable file-types")
+
+        condition1 = st.checkbox("* .xlsx .xls .docx are the only acceptable file-types")
         # agree2 = st.checkbox("* Please save .doc file as .docx extension")
 
-        # col_1, col_2 = st.columns(2)
-        condition2 = col_2.checkbox("* all WORD.doc files are converted to WORD.docx files")
+        col_1, col_2 = st.columns(2)
+        condition2 = col_1.checkbox("* all WORD.doc files are converted to WORD.docx files")
         if condition1 and condition2:
             st.write("Great ! ")
             
-        need_help = st.button("How to convert to .docx?")
+        need_help = col_2.button("How to convert to .docx?")
         if need_help:
             st.image("that.gif")
 
