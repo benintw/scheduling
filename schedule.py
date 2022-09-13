@@ -1,3 +1,6 @@
+'''
+Last modified: Tues Sep 13 , 2022 @ 21:11
+'''
 
 import os
 from io import BytesIO
@@ -130,6 +133,7 @@ def get_DataFrame(team:str) -> pd.DataFrame:
     table = document.tables[0]
     data = [[cell.text for cell in row.cells] for row in table.rows]
     df = pd.DataFrame(data)
+    df.iloc[:,0] = df.iloc[:,0].str.strip().str.replace(" ","")
 
     # 隊名prefix
     prefix = team.name.split("月")[1][:5] + "_"
@@ -145,7 +149,12 @@ def get_DataFrame(team:str) -> pd.DataFrame:
         prefix = "5" + prefix
 
     # 處理header
-    FirstDayRow = df.iloc[:,1].eq("一").idxmax()
+    for i in range(len(df)):
+        if df.iloc[i,0] == "01":
+            FirstDayRow = i
+        elif df.iloc[i,0] == "1":
+            FirstDayRow = i
+
     NameIndexRow = FirstDayRow -1
     NameIndexCol = 2
 
@@ -158,6 +167,8 @@ def get_DataFrame(team:str) -> pd.DataFrame:
         header[i] = prefix + header[i].strip()[-3:]
 
     df_reorganized = df.iloc[FirstDayRow-1:-1,NameIndexCol:].reset_index(inplace=False, drop=True).rename(columns = header)
+    if "/" in df_reorganized.iloc[-1,:].values:
+        df_reorganized = df_reorganized.drop(df_reorganized.index[-1])
     df_reorganized.iloc[0,:] = titles
     return df_reorganized
 
@@ -167,13 +178,13 @@ def get_DataFrame_SpecialForce(team:str) -> pd.DataFrame:
     table = document.tables[0]
     data = [[cell.text for cell in row.cells] for row in table.rows]
     df = pd.DataFrame(data)
-
+    df.iloc[:,0] = df.iloc[:,0].str.strip().str.replace(" ","")
 
     # 隊名prefix
     prefix = "0"+team.name.split("月")[1][:5] + "_"
 
     # 處理header
-    FirstDayRow = df.iloc[:,1].eq("一").idxmax()
+    FirstDayRow = df.iloc[:,0].eq("01").idxmax()  
     NameIndexRow = FirstDayRow -1
     NameIndexCol = 2
 
@@ -191,6 +202,8 @@ def get_DataFrame_SpecialForce(team:str) -> pd.DataFrame:
 
     ####
     df_reorganized = df.iloc[FirstDayRow-1:-1,NameIndexCol:].reset_index(inplace=False, drop=True).rename(columns = header)
+    if "/" in df_reorganized.iloc[-1,:].values:
+        df_reorganized = df_reorganized.drop(df_reorganized.index[-1])
     df_reorganized.iloc[0,:] = titles
     return df_reorganized
 
@@ -200,6 +213,7 @@ def get_DataFrame_KaoHsiungAirport(team:str) -> pd.DataFrame:
     table = document.tables[0]
     data = [[cell.text for cell in row.cells] for row in table.rows]
     df = pd.DataFrame(data)
+    df.iloc[:,0] = df.iloc[:,0].str.strip().str.replace(" ","")
 
     # 處理多餘的column
     df = df.drop(df.columns[-1],axis=1)
@@ -208,7 +222,7 @@ def get_DataFrame_KaoHsiungAirport(team:str) -> pd.DataFrame:
     prefix = team.name.split("月")[1][:5] + "_"
 
     # 處理header
-    FirstDayRow = df.iloc[:,1].eq("一").idxmax()
+    FirstDayRow = df.iloc[:,0].eq("01").idxmax()  
     NameIndexRow = FirstDayRow -1
     NameIndexCol = 2
 
@@ -221,15 +235,22 @@ def get_DataFrame_KaoHsiungAirport(team:str) -> pd.DataFrame:
         header[i] = prefix + header[i].strip()[-3:]
 
     df_reorganized = df.iloc[FirstDayRow-1:-1,NameIndexCol:].reset_index(inplace=False, drop=True).rename(columns = header)
+    if "/" in df_reorganized.iloc[-1,:].values:
+        df_reorganized = df_reorganized.drop(df_reorganized.index[-1])
     df_reorganized.iloc[0,:] = titles
 
     return df_reorganized
 
 def time_formatting(df:pd.DataFrame) -> pd.DataFrame:
     '''把時間字串整理整理'''
+    for column in df.columns:
+        df[column] = df[column].str.strip()
+
     df = df.replace("至","-", regex=True).replace("時","", regex=True).replace("前日","",regex=True).replace("▲","",regex=True)
     df = df.replace("*","").replace("△","",regex=True).replace("\(公\)","",regex=True)
     df = df.replace("■","",regex=True).replace("\(代理\)","",regex=True).replace(":","",regex=True)
+    df = df.replace("前", "",regex=True).replace("9-21","09-21").replace("前20-8","20-8")
+
     return df
 
 def get_day_of_week(excelpath:str) -> list:
@@ -240,10 +261,7 @@ def get_day_of_week(excelpath:str) -> list:
     return dayOfweek
 
 
-
-
-
-if __name__ == "__main__":
+def main():
     st.markdown("# Intelligentsia")
     st.write("-"*100)
 
@@ -264,17 +282,19 @@ if __name__ == "__main__":
             st.write("Great ! ")
             
         need_help = col_2.button("How to convert to .docx?")
-        if need_help:
-            st.image("that.gif")
-
+        try:
+            if need_help:
+                st.image("that.gif")
+        except:
+            print("testing")
 
 
         uploaded_files = st.file_uploader('Upload the files',type=["xlsx","xls","docx"] ,accept_multiple_files=True)
         st.write("-"*100)
 
-        taoyuan_teams_docx_list = []
-        management_teams_excel_list = []
-        other_teams_docx_list = []
+        # taoyuan_teams_docx_list = []
+        # management_teams_excel_list = []
+        # other_teams_docx_list = []
 
         get_different_teams_to_list(uploaded_files)
 
@@ -283,6 +303,7 @@ if __name__ == "__main__":
             "taoyuan_teams":taoyuan_teams_docx_list,
             "other_teams":other_teams_docx_list
         }
+
 
         if uploaded_files:
 
@@ -316,8 +337,7 @@ if __name__ == "__main__":
             OtherCombined_df = OtherCombined_df.replace("○","輪休").replace("","輪休")
             OtherCombined_df = time_formatting(OtherCombined_df)
 
-            # st.write(TaoYuanCombined_df)
-            # st.write(OtherCombined_df)
+
             # '''TaoYuanCombined_df'''
             tao1_index = []
             tao2_index = []
@@ -709,12 +729,12 @@ if __name__ == "__main__":
                 dep_officer = df_officer.iloc[DAY][1]
 
                 # 桃一隊 tao1_df
+                tao1_df = tao1_df.replace("9-21","09-21")
                 u = tao1_df.iloc
-                u_ = tao1_df.loc
 
-                cell_C9 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_C9 = " " if len(u[DAY,:][0]) <= 2 else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
                 cell_D9 = " " if cell_C9 == " " else u[0,:][0][-3:]
-                cell_E9 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_E9 = " " if len(u[DAY,:][1]) <= 2 else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
                 cell_F9 = " " if cell_E9 == " " else u[0,:][1][-3:]
 
                 mask = u[DAY,:] != "輪休"
@@ -743,10 +763,11 @@ if __name__ == "__main__":
 
 
                 # 桃2隊 tao2_df
+                tao2_df = tao2_df.replace("9-21","09-21")
                 u = tao2_df.iloc
-                cell_C11 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_C11 = " " if len(u[DAY,:][0]) <= 2 else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
                 cell_D11 = " " if cell_C11 == " " else u[0,:][0][-3:]
-                cell_E11 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_E11 = " " if len(u[DAY,:][1]) <= 2 else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
                 cell_F11 = " " if cell_E11 == " " else u[0,:][1][-3:]
 
                 mask = u[DAY,:] != "輪休"
@@ -763,6 +784,9 @@ if __name__ == "__main__":
                     if "09-21" in u[DAY,2:][mask][i]:
                         new_time_list.append(i)
                 for i in range(len(u[DAY,2:][mask])):
+                    if "9-21" in u[DAY,2:][mask][i]:
+                        new_time_list.append(i)
+                for i in range(len(u[DAY,2:][mask])):
                     if "1130-2130" in u[DAY,2:][mask][i]:
                         new_time_list.append(i)
 
@@ -772,11 +796,12 @@ if __name__ == "__main__":
                 cell_H12 = leaders[new_time_list[1]][-3:]
 
                 # 桃4隊 tao4_df
+                tao4_df = tao4_df.replace("9-21","09-21")
                 u = tao4_df.iloc
 
-                cell_C13 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_C13 = " " if len(u[DAY,:][0]) <= 2 else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
                 cell_D13 = " " if cell_C13 == " " else u[0,:][0][-3:]
-                cell_E13 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_E13 = " " if len(u[DAY,:][1]) <= 2 else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
                 cell_F13 = " " if cell_E13 == " " else u[0,:][1][-3:]
 
                 mask = u[DAY,:] != "輪休"
@@ -804,9 +829,9 @@ if __name__ == "__main__":
                 # 桃5隊 tao5_df
                 u = tao5_df.iloc
 
-                cell_C15 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_C15 = " " if len(u[DAY,:][0]) <= 2 else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
                 cell_D15 = " " if cell_C15 == " " else u[0,:][0][-3:]
-                cell_E15 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_E15 = " " if len(u[DAY,:][1]) <= 2 else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
                 cell_F15 = " " if cell_E15 == " " else u[0,:][1][-3:]
 
                 mask = u[DAY,:] != "輪休"
@@ -837,9 +862,9 @@ if __name__ == "__main__":
                 # 桃3隊 tao3_df
                 u = tao3_df.iloc
 
-                cell_C17 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_C17 = " " if len(u[DAY,:][0]) <= 2 else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
                 cell_D17 = " " if cell_C17 == " " else u[0,:][0][-3:]
-                cell_E17 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_E17 = " " if len(u[DAY,:][1]) <= 2 else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
                 cell_F17 = " " if cell_E17 == " " else u[0,:][1][-3:]
 
                 mask = u[DAY,:] != "輪休"
@@ -869,9 +894,9 @@ if __name__ == "__main__":
 
                 # # 特殊勤務 specialForce_df
                 u = specialForce_df.iloc
-                cell_C21 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_C21 = " " if len(u[DAY,:][0]) <= 2 else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
                 cell_D21 = " " if cell_C21 == " " else u[0,:][0][-3:]
-                cell_E21 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_E21 = " " if len(u[DAY,:][1]) <= 2 else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
                 cell_F21 = " " if cell_E21 == " " else u[0,:][1][-2:]
 
                 mask = u[DAY,:] != "輪休"
@@ -898,9 +923,9 @@ if __name__ == "__main__":
                 # '''外機港隊'''
                 # keelunng_df
                 u = keelung_df.iloc
-                cell_C25 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_C25 = " " if len(u[DAY,:][0]) <= 2 else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
                 cell_D25 = " " if cell_C25 == " " else keelung_df.columns.tolist()[0][-3:]
-                cell_E25 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_E25 = " " if len(u[DAY,:][1]) <= 2 else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
                 cell_F25 = " " if cell_E25 == " " else keelung_df.columns.tolist()[1][-3:]
 
                 mask = u[DAY,:] != "輪休"
@@ -929,9 +954,9 @@ if __name__ == "__main__":
                 # # songshang_df
                 u = songshang_df.iloc
 
-                cell_C28 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_C28 = " " if len(u[DAY,:][0]) <= 2 else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
                 cell_D28 = " " if cell_C28 == " " else " "
-                cell_E28 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_E28 = " " if len(u[DAY,:][1]) <= 2 else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
                 cell_F28 = " " if cell_E28 == " " else u[0,:][1][-3:]
 
                 mask = u[DAY,:] != "輪休"
@@ -954,9 +979,9 @@ if __name__ == "__main__":
 
                 # # taichung_df
                 u = taichung_df.iloc
-                cell_C30 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_C30 = " " if len(u[DAY,:][0]) <= 2 else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
                 cell_D30 = " " if cell_C30 == " " else u[0,:][0][-3:]
-                cell_E30 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_E30 = " " if len(u[DAY,:][1]) <= 2 else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
                 cell_F30 = " " if cell_E30 == " " else u[0,:][1][-3:]
 
                 mask = u[DAY,:] != "輪休"
@@ -977,9 +1002,9 @@ if __name__ == "__main__":
 
                 # # kaohsiungAirport_df
                 u = kaohsiungAirport_df.iloc
-                cell_C32 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_C32 = " " if len(u[DAY,:][0]) <= 2 else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
                 cell_D32 = " " if cell_C32 == " " else u[0,:][0][-3:]
-                cell_E32 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_E32 = " " if len(u[DAY,:][1]) <= 2 else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
                 cell_F32 = " " if cell_E32 == " " else u[0,:][1][-3:]
 
                 mask = u[DAY,:] != "輪休"
@@ -1000,9 +1025,9 @@ if __name__ == "__main__":
 
                 # # kaohsiungPort_df
                 u = kaohsiungPort_df.iloc
-                cell_C34 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_C34 = " " if len(u[DAY,:][0]) <= 2 else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
                 cell_D34 = " " if cell_C34 == " " else u[0,:][0][-3:]
-                cell_E34 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_E34 = " " if len(u[DAY,:][1]) <= 2 else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
                 cell_F34 = " " if cell_E34 == " " else u[0,:][1][-3:]
 
                 mask = u[DAY,:] != "輪休"
@@ -1019,22 +1044,29 @@ if __name__ == "__main__":
                 for i in range(len(u[DAY,2:][mask])):     
                     if "-20" in u[DAY,2:][mask][i]:
                         new_time_list.append(i)
-
-                cell_G34 = leaders_col[new_time_list[0]]
-                cell_H34 = leaders[new_time_list[0]][-3:]
-                try:
+        
+                if len(new_time_list) != 0 and len(new_time_list) >= 2:
+                    cell_G34 = leaders_col[new_time_list[0]]
+                    cell_H34 = leaders[new_time_list[0]][-3:]
                     cell_G35 = leaders_col[new_time_list[1]]
                     cell_H35 = leaders[new_time_list[1]][-3:]
-                except:
+                
+                elif len(new_time_list)!= 0 and len(new_time_list) == 1:
+                    cell_G34 = leaders_col[new_time_list[0]]
+                    cell_H34 = leaders[new_time_list[0]][-3:]
+                    cell_G35 = None
+                    cell_H35 = None
+                elif len(new_time_list) == 0:
+                    cell_G34 = None
+                    cell_H34 = None
                     cell_G35 = None
                     cell_H35 = None
 
-
                 # # jingmen_df
                 u = jingmen_df.iloc
-                cell_C36 = " " if u[DAY,:][0] == "輪休" else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
+                cell_C36 = " " if len(u[DAY,:][0]) <= 2 else u[DAY,:][0].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][0].strip().split("-")[1] # time 
                 cell_D36 = " " if cell_C36 == " " else u[0,:][0][-3:]
-                cell_E36 = " " if u[DAY,:][1] == "輪休" else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
+                cell_E36 = " " if len(u[DAY,:][1]) <= 2 else u[DAY,:][1].strip().split("-")[0]+ "\n|\n"+ u[DAY,:][1].strip().split("-")[1] # time 
                 cell_F36 = " " if cell_E36 == " " else u[0,:][1][-3:]
 
                 mask = u[DAY,:] != "輪休"
@@ -1049,12 +1081,20 @@ if __name__ == "__main__":
                     if "9-" in u[DAY,2:][mask][i]:
                         new_time_list.append(i)
 
-                cell_G36 = leaders_col[new_time_list[0]]
-                cell_H36 = leaders[new_time_list[0]][-3:]
-                try:
+                if len(new_time_list) != 0 and len(new_time_list) >= 2:
+                    cell_G36 = leaders_col[new_time_list[0]]
+                    cell_H36 = leaders[new_time_list[0]][-3:]
                     cell_G37 = leaders_col[new_time_list[1]]
                     cell_H37 = leaders[new_time_list[1]][-3:]
-                except:
+                
+                elif len(new_time_list)!= 0 and len(new_time_list) == 1:
+                    cell_G36 = leaders_col[new_time_list[0]]
+                    cell_H36 = leaders[new_time_list[0]][-3:]
+                    cell_G37 = None
+                    cell_H37 = None
+                elif len(new_time_list) == 0:
+                    cell_G36 = None
+                    cell_H36 = None
                     cell_G37 = None
                     cell_H37 = None
 
@@ -1517,36 +1557,41 @@ if __name__ == "__main__":
                 worksheet.merge_range("D34:D35",cell_D34, text_format)
                 worksheet.merge_range("F34:F35",cell_F34, text_format)
 
-                if cell_G35 == None:
-                    if int(cell_G34.split("-")[0]) <= TIME_THRESHOLD:
-                        worksheet.merge_range("G34:G35", cell_G34, leaders_time_format_morning)
-                    else:
-                        if cell_G34[:2] == "20":
-                            worksheet.merge_range("G34:G35", "昨"+cell_G34, leaders_time_format_not_morning)
-                        else:
-                            worksheet.merge_range("G34:G35", cell_G34, leaders_time_format_not_morning)
-                    
-                    worksheet.merge_range("H34:H35", cell_H34,text_format)
+
+                if cell_G34 == None and cell_H34 == None:
+                    worksheet.merge_range("G34:G35","",grey_bg_color)
+                    worksheet.merge_range("H34:H35","", grey_bg_color)
                 else:
-                    if int(cell_G34.split("-")[0]) <= TIME_THRESHOLD:
-                        worksheet.write("G34", cell_G34, leaders_time_format_morning) # time 
-                    else:
-                        if cell_G34[:2] == "20":
-                            worksheet.write("G34:G35", "昨"+cell_G34, leaders_time_format_not_morning)
+                    if cell_G35 == None:
+                        if int(cell_G34.split("-")[0]) <= TIME_THRESHOLD:
+                            worksheet.merge_range("G34:G35", cell_G34, leaders_time_format_morning)
                         else:
-                            worksheet.write("G34:G35", cell_G34, leaders_time_format_not_morning)
-
-                    if int(cell_G35.split("-")[0]) <= TIME_THRESHOLD:
-                        worksheet.write("G35", cell_G35, leaders_time_format_morning) # time 
+                            if cell_G34[:2] == "20":
+                                worksheet.merge_range("G34:G35", "昨"+cell_G34, leaders_time_format_not_morning)
+                            else:
+                                worksheet.merge_range("G34:G35", cell_G34, leaders_time_format_not_morning)
+                        
+                        worksheet.merge_range("H34:H35", cell_H34,text_format)
                     else:
-                        if cell_G35[:2] == "20":
-                            worksheet.write("G35", "昨"+cell_G35, leaders_time_format_not_morning) # time 
+                        if int(cell_G34.split("-")[0]) <= TIME_THRESHOLD:
+                            worksheet.write("G34", cell_G34, leaders_time_format_morning) # time 
                         else:
-                            worksheet.write("G35", cell_G35, leaders_time_format_not_morning) # time 
+                            if cell_G34[:2] == "20":
+                                worksheet.write("G34:G35", "昨"+cell_G34, leaders_time_format_not_morning)
+                            else:
+                                worksheet.write("G34:G35", cell_G34, leaders_time_format_not_morning)
 
-                    worksheet.write("H34", cell_H34,text_format)
-                    worksheet.write("H35", cell_H35, text_format)
+                        if int(cell_G35.split("-")[0]) <= TIME_THRESHOLD:
+                            worksheet.write("G35", cell_G35, leaders_time_format_morning) # time 
+                        else:
+                            if cell_G35[:2] == "20":
+                                worksheet.write("G35", "昨"+cell_G35, leaders_time_format_not_morning) # time 
+                            else:
+                                worksheet.write("G35", cell_G35, leaders_time_format_not_morning) # time 
 
+                        worksheet.write("H34", cell_H34,text_format)
+                        worksheet.write("H35", cell_H35, text_format)
+                
                 # jingmen_df
                 try:
                     if int(cell_C36[:2]) <= TIME_THRESHOLD:
@@ -1568,35 +1613,39 @@ if __name__ == "__main__":
                 worksheet.merge_range("D36:D37",cell_D36, text_format)
                 worksheet.merge_range("F36:F37",cell_F36, text_format)
 
-                if cell_G37 == None:
-                    if int(cell_G36.split("-")[0]) <= TIME_THRESHOLD:
-                        worksheet.merge_range("G36:G37", cell_G36, leaders_time_format_morning)
-                    else:
-                        worksheet.merge_range("G36:G37", cell_G36, leaders_time_format_not_morning)
-                    
-                    if cell_H36 == "長王愷":
-                        worksheet.merge_range("H36:H37", "王愷",text_format)
-                    else:
-                        worksheet.merge_range("H36:H37", cell_H36,text_format)
+                if cell_G36 == None and cell_H36 == None:
+                    worksheet.merge_range("G36:G37","",)
+                    worksheet.merge_range("H36:H37","", )
                 else:
-                    if int(cell_G36.split("-")[0]) <= TIME_THRESHOLD:
-                        worksheet.write("G36", cell_G36, leaders_time_format_morning) # time 
+                    if cell_G37 == None:
+                        if int(cell_G36.split("-")[0]) <= TIME_THRESHOLD:
+                            worksheet.merge_range("G36:G37", cell_G36, leaders_time_format_morning)
+                        else:
+                            worksheet.merge_range("G36:G37", cell_G36, leaders_time_format_not_morning)
+                        
+                        if cell_H36 == "長王愷":
+                            worksheet.merge_range("H36:H37", "王愷",text_format)
+                        else:
+                            worksheet.merge_range("H36:H37", cell_H36,text_format)
                     else:
-                        worksheet.write("G36", cell_G36, leaders_time_format_not_morning) # time 
-                    if int(cell_G37.split("-")[0]) <= TIME_THRESHOLD:
-                        worksheet.write("G37", cell_G37, leaders_time_format_morning) # time 
-                    else:
-                        worksheet.write("G37", cell_G37, leaders_time_format_not_morning) # time 
+                        if int(cell_G36.split("-")[0]) <= TIME_THRESHOLD:
+                            worksheet.write("G36", cell_G36, leaders_time_format_morning) # time 
+                        else:
+                            worksheet.write("G36", cell_G36, leaders_time_format_not_morning) # time 
+                        if int(cell_G37.split("-")[0]) <= TIME_THRESHOLD:
+                            worksheet.write("G37", cell_G37, leaders_time_format_morning) # time 
+                        else:
+                            worksheet.write("G37", cell_G37, leaders_time_format_not_morning) # time 
 
-                    if cell_H36 == "長王愷":
-                        worksheet.write("H36", "王愷",text_format)
-                    else:
-                        worksheet.write("H36", cell_H36,text_format)
+                        if cell_H36 == "長王愷":
+                            worksheet.write("H36", "王愷",text_format)
+                        else:
+                            worksheet.write("H36", cell_H36,text_format)
 
-                    if cell_H37 == "長王愷":
-                        worksheet.write("H37", "王愷",text_format)
-                    else:
-                        worksheet.write("H37", cell_H37, text_format)
+                        if cell_H37 == "長王愷":
+                            worksheet.write("H37", "王愷",text_format)
+                        else:
+                            worksheet.write("H37", cell_H37, text_format)
 
 
                 worksheet.conditional_format('C11:C12',{'type':"text",'criteria':"not containing",
@@ -1618,7 +1667,6 @@ if __name__ == "__main__":
                 time.sleep(0.1)
 
             message = st.success('Done!')
-            # st.balloons()
             if message:
 
                 st.download_button(
@@ -1631,5 +1679,16 @@ if __name__ == "__main__":
         st.write("Enter Password")
 
     else:
-        st.image("haha2.png")
-    
+        try:
+            st.image("haha2.png")
+        except:
+            print("Password incorrect")
+
+
+if __name__ == "__main__":
+
+    taoyuan_teams_docx_list = []
+    management_teams_excel_list = []
+    other_teams_docx_list = []
+    main()
+
